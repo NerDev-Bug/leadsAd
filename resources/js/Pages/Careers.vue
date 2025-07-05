@@ -1,28 +1,28 @@
 <script setup>
 import SidebarLayout from '@/Layouts/SidebarLayout.vue';
 import { ref } from 'vue';
-import NewsModal from '@/Modals/NewsModal.vue';
-import NewsUpdateModal from '@/Modals/NewsUpdateModal.vue';
-import NewsDeleteModal from '@/Modals/NewsDeleteModal.vue';
+import CareersModal from '@/Modals/CareersModal.vue';
+import CareersUpdateModal from '@/Modals/CareersUpdateModal.vue';
+import CareersDeleteModal from '@/Modals/CareersDeleteModal.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { usePage, router } from '@inertiajs/vue3';
 
-const isNewsModalOpen = ref(false);
-const isNewsUpdateModalOpen = ref(false);
-const isNewsDeleteModalOpen = ref(false);
-const selectedNews = ref(null);
+const isCareersModalOpen = ref(false);
+const isCareersUpdateModalOpen = ref(false);
+const isCareersDeleteModalOpen = ref(false);
+const selectedCareer = ref(null);
 
-function openNewsModal() {
-    isNewsModalOpen.value = true;
+function openCareersModal() {
+    isCareersModalOpen.value = true;
 }
 
-function handleNewsSubmit(news) {
-    // TODO: handle news submission (e.g., send to backend)
-    isNewsModalOpen.value = false;
+function handleCareersSubmit(career) {
+    // TODO: handle career submission (e.g., send to backend)
+    isCareersModalOpen.value = false;
 }
 
 const page = usePage();
-const news = page.props.news || [];
+const careers = page.props.careers || [];
 const pagination = page.props.pagination || {
     current_page: 1,
     last_page: 1,
@@ -50,19 +50,19 @@ function formatDate(dateString) {
     });
 }
 
-function editNews(newsItem) {
-    selectedNews.value = newsItem;
-    isNewsUpdateModalOpen.value = true;
+function editCareer(careerItem) {
+    selectedCareer.value = careerItem;
+    isCareersUpdateModalOpen.value = true;
 }
 
-function deleteNews(newsItem) {
-    selectedNews.value = newsItem;
-    isNewsDeleteModalOpen.value = true;
+function deleteCareer(careerItem) {
+    selectedCareer.value = careerItem;
+    isCareersDeleteModalOpen.value = true;
 }
 
-function handleNewsDeleted(deletedNews) {
-    // News will be automatically removed from the list due to Inertia refresh
-    console.log('News deleted:', deletedNews);
+function handleCareerDeleted(deletedCareer) {
+    // Career will be automatically removed from the list due to Inertia refresh
+    console.log('Career deleted:', deletedCareer);
 }
 
 function handlePageChanged(page) {
@@ -74,12 +74,12 @@ function handlePageChanged(page) {
     <SidebarLayout>
         <div class="max-w-7xl mx-auto">
             <div class="flex justify-start items-center mb-4">
-                <h1 class="text-2xl font-bold">News Management</h1>
+                <h1 class="text-2xl font-bold">Careers Management</h1>
             </div>
             <div class="flex justify-end items-center mb-6">
                 <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow transition duration-200"
-                    @click="openNewsModal">
-                    + Add News
+                    @click="openCareersModal">
+                    + Add Career
                 </button>
             </div>
             <div class="overflow-x-auto bg-white rounded-lg shadow">
@@ -87,20 +87,19 @@ function handlePageChanged(page) {
                     <thead class="bg-gray-100">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Featured Image
+                                Employment Type
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Article Images
+                                Position
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Title
+                                Details
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Content
+                                Location
                             </th>
-
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Published Date
+                                Job Description
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                                 Action
@@ -108,62 +107,45 @@ function handlePageChanged(page) {
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        <tr v-for="newsItem in news" :key="newsItem.id" class="hover:bg-gray-50">
-                            <!-- Featured Image -->
+                        <tr v-for="career in careers" :key="career.id" class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div>
-                                    <img v-if="newsItem.featured_image"
-                                         :src="`/storage/${newsItem.featured_image}`"
-                                         alt="Featured Image"
-                                         class="h-16 w-24 object-cover rounded shadow-sm" />
-                                    <div v-else class="h-16 w-24 bg-gray-200 rounded flex items-center justify-center">
-                                        <span class="text-gray-400 text-xs">No Image</span>
-                                    </div>
-                                </div>
-                            </td>
-                            <!-- Article Images (featured_image_2, multiple) -->
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex space-x-2">
-                                    <template v-if="newsItem.featured_image_2">
-                                        <template v-for="(img, idx) in newsItem.featured_image_2.split(',')" :key="idx">
-                                            <img v-if="img.trim()" :src="`/storage/${img.trim()}`" alt="Article Image"
-                                                 class="h-16 w-24 object-cover rounded shadow-sm" />
-                                        </template>
-                                    </template>
-                                    <template v-else>
-                                        <div class="h-16 w-24 bg-gray-200 rounded flex items-center justify-center">
-                                            <span class="text-gray-400 text-xs">No Image</span>
-                                        </div>
-                                    </template>
+                                <div class="text-sm font-medium text-gray-900" :title="career.employment_type">
+                                    {{ truncateText(career.employment_type, 15) }}
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm font-medium text-gray-900" :title="newsItem.title">
-                                    {{ truncateText(newsItem.title, 15) }}
+                                <div class="text-sm font-medium text-gray-900" :title="career.position">
+                                    {{ truncateText(career.position, 15) }}
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <div class="text-sm text-gray-900 max-w-xs" :title="newsItem.content">
-                                    {{ truncateText(newsItem.content, 15) }}
+                                <div class="text-sm text-gray-900 max-w-xs" :title="career.details">
+                                    {{ truncateText(career.details, 15) }}
                                 </div>
                             </td>
-
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                {{ formatDate(newsItem.published_at) }}
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900" :title="career.location">
+                                    {{ truncateText(career.location, 15) }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 max-w-xs" :title="career.job_description">
+                                    {{ truncateText(career.job_description, 15) }}
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <button @click="editNews(newsItem)"
+                                <button @click="editCareer(career)"
                                     class="inline-flex items-center justify-center p-2 rounded-lg hover:bg-blue-100 group mr-2 transition duration-200"
-                                    title="Edit News">
+                                    title="Edit Career">
                                     <svg class="w-5 h-5 text-blue-600 group-hover:text-blue-800" fill="none"
                                         stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
                                         stroke-linecap="round" stroke-linejoin="round">
                                         <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                     </svg>
                                 </button>
-                                <button @click="deleteNews(newsItem)"
+                                <button @click="deleteCareer(career)"
                                     class="inline-flex items-center justify-center p-2 rounded-lg hover:bg-red-100 group transition duration-200"
-                                    title="Delete News">
+                                    title="Delete Career">
                                     <svg class="w-5 h-5 text-red-600 group-hover:text-red-800" fill="none"
                                         stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
                                         stroke-linecap="round" stroke-linejoin="round">
@@ -172,14 +154,14 @@ function handlePageChanged(page) {
                                 </button>
                             </td>
                         </tr>
-                        <tr v-if="!news.length">
-                            <td colspan="5" class="text-center py-8 text-gray-400">
+                        <tr v-if="!careers.length">
+                            <td colspan="6" class="text-center py-8 text-gray-400">
                                 <div class="flex flex-col items-center">
                                     <svg class="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
                                     </svg>
-                                    <p class="text-lg font-medium">No news articles found</p>
-                                    <p class="text-sm">Get started by adding your first news article</p>
+                                    <p class="text-lg font-medium">No career postings found</p>
+                                    <p class="text-sm">Get started by adding your first career posting</p>
                                 </div>
                             </td>
                         </tr>
@@ -189,7 +171,7 @@ function handlePageChanged(page) {
 
             <div class="flex justify-between items-center mb-4 py-4">
                 <div v-if="pagination" class="text-sm text-gray-600">
-                    Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} news articles
+                    Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} career postings
                 </div>
                 <div v-if="pagination" class="text-sm text-gray-600">
                     Page {{ pagination.current_page }} of {{ pagination.last_page }}
@@ -203,8 +185,8 @@ function handlePageChanged(page) {
         </div>
 
         <!-- Modals -->
-        <NewsModal v-model="isNewsModalOpen" @submitted="handleNewsSubmit" />
-        <NewsUpdateModal v-model="isNewsUpdateModalOpen" :news="selectedNews" @submitted="handleNewsSubmit" />
-        <NewsDeleteModal v-model="isNewsDeleteModalOpen" :news="selectedNews" @deleted="handleNewsDeleted" />
+        <CareersModal v-model="isCareersModalOpen" @submitted="handleCareersSubmit" />
+        <CareersUpdateModal v-model="isCareersUpdateModalOpen" :career="selectedCareer" @submitted="handleCareersSubmit" />
+        <CareersDeleteModal v-model="isCareersDeleteModalOpen" :career="selectedCareer" @deleted="handleCareerDeleted" />
     </SidebarLayout>
 </template>

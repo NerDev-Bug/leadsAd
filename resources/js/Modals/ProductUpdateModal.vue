@@ -19,27 +19,31 @@
                 <div class="grid grid-cols-1 gap-4">
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Description<span class="text-red-500">*</span></label>
-                        <textarea v-model="form.description"
-                            class="w-full border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none min-h-[60px] capitalize"
+                        <textarea v-model="form.description" @input="handleInput('description')"
+                            class="w-full border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none min-h-[60px]"
                             required></textarea>
                     </div>
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Features & Benefits<span class="text-red-500">*</span></label>
-                        <textarea v-model="form.features"
-                            class="w-full border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none min-h-[60px] capitalize"
+                        <textarea v-model="form.features" @input="handleInput('features')"
+                            class="w-full border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none min-h-[60px]"
                             required></textarea>
                     </div>
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Dosage<span class="text-red-500">*</span></label>
-                        <input v-model="form.dosage" type="text"
-                            class="w-full border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none capitalize"
-                            required />
+                        <div v-for="(dosage, idx) in form.dosages" :key="idx" class="flex items-center mb-2 gap-2">
+                            <input v-model="form.dosages[idx]" @input="handleArrayInput('dosages', idx)" type="text"
+                                class="flex-1 border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                required />
+                            <button type="button" @click="removeDosage(idx)" v-if="form.dosages.length > 1" class="text-red-500 hover:text-red-700 text-xl px-2 py-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">&minus;</button>
+                        </div>
+                        <button type="button" @click="addDosage" class="mt-1 text-blue-600 hover:text-blue-800 text-sm font-semibold focus:outline-none focus:underline">+ Add Dosage</button>
                     </div>
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Target<span class="text-red-500">*</span></label>
                         <div v-for="(target, idx) in form.targets" :key="idx" class="flex items-center mb-2 gap-2">
-                            <input v-model="form.targets[idx]" type="text"
-                                class="flex-1 border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none capitalize"
+                            <input v-model="form.targets[idx]" @input="handleArrayInput('targets', idx)" type="text"
+                                class="flex-1 border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                 required />
                             <button type="button" @click="removeTarget(idx)" v-if="form.targets.length > 1" class="text-red-500 hover:text-red-700 text-xl px-2 py-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">&minus;</button>
                         </div>
@@ -129,7 +133,7 @@ const form = ref({
     type: '',
     description: '',
     features: '',
-    dosage: '',
+    dosages: [''],
     targets: [''],
     category: '',
     image1: null,
@@ -148,7 +152,7 @@ const resetForm = () => {
         type: '',
         description: '',
         features: '',
-        dosage: '',
+        dosages: [''],
         targets: [''],
         category: '',
         image1: null,
@@ -168,7 +172,7 @@ const populateForm = (product) => {
         type: product.type || '',
         description: product.description || '',
         features: product.features || '',
-        dosage: product.dosage || '',
+        dosages: product.dosage ? product.dosage.split(',').map(d => d.trim()) : [''],
         targets: product.target ? product.target.split(',').map(t => t.trim()) : [''],
         category: product.category || '',
         image1: null,
@@ -228,9 +232,24 @@ const removeTarget = (idx) => {
     if (form.value.targets.length > 1) form.value.targets.splice(idx, 1);
 };
 
+const addDosage = () => {
+    form.value.dosages.push('');
+};
+
+const removeDosage = (idx) => {
+    if (form.value.dosages.length > 1) form.value.dosages.splice(idx, 1);
+};
+
 function capitalizeFirstLetter(str) {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+function handleInput(field) {
+    form.value[field] = capitalizeFirstLetter(form.value[field]);
+}
+function handleArrayInput(field, idx) {
+    form.value[field][idx] = capitalizeFirstLetter(form.value[field][idx]);
 }
 
 async function submitForm() {
@@ -249,7 +268,7 @@ async function submitForm() {
     // Capitalize first letter of relevant fields
     form.value.description = capitalizeFirstLetter(form.value.description);
     form.value.features = capitalizeFirstLetter(form.value.features);
-    form.value.dosage = capitalizeFirstLetter(form.value.dosage);
+    form.value.dosages = form.value.dosages.map(capitalizeFirstLetter);
     form.value.targets = form.value.targets.map(capitalizeFirstLetter);
 
     const formData = new FormData();
@@ -257,7 +276,7 @@ async function submitForm() {
     formData.append('type', form.value.type);
     formData.append('description', form.value.description);
     formData.append('features', form.value.features);
-    formData.append('dosage', form.value.dosage);
+    formData.append('dosage', form.value.dosages.join(', '));
     formData.append('target', form.value.targets.join(', '));
     formData.append('category', form.value.category);
 
