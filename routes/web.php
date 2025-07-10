@@ -5,24 +5,41 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CareerController;
+use App\Http\Controllers\AccessRegisterController;
 
-Route::get('/', function () {
-    return Inertia::render('Dashboard');
-})->name('home');
+Route::get('/dashboard', function () {
+    return Inertia::render('SubPage/Dashboard');
+})->middleware('auth')->name('dashboard');
 
-Route::get('/products', [\App\Http\Controllers\ProductController::class, 'index'])->name('products');
-Route::post('/products', [\App\Http\Controllers\ProductController::class, 'store']);
-Route::put('/products/{product}', [\App\Http\Controllers\ProductController::class, 'update'])->name('products.update');
-Route::delete('/products/{product}', [\App\Http\Controllers\ProductController::class, 'destroy'])->name('products.destroy');
+Route::get('/register', function () {
+    return Inertia::render('AccessRegister');
+})->name('register');
 
-Route::get('/news', [\App\Http\Controllers\NewsController::class, 'index'])->name('news');
-Route::post('/news', [\App\Http\Controllers\NewsController::class, 'store']);
-Route::put('/news/{news}', [\App\Http\Controllers\NewsController::class, 'update'])->name('news.update');
-Route::delete('/news/{news}', [\App\Http\Controllers\NewsController::class, 'destroy'])->name('news.destroy');
+Route::get('/login', function () {
+    return Inertia::render('LoginForm');
+})->middleware('guest')->name('login');
 
-Route::get('/careers', [CareerController::class, 'index'])->name('careers');
-Route::post('/careers', [CareerController::class, 'store']);
-Route::put('/careers/{career}', [CareerController::class, 'update'])->name('careers.update');
-Route::delete('/careers/{career}', [CareerController::class, 'destroy'])->name('careers.destroy');
+//Products functions
+Route::get('/products', [\App\Http\Controllers\ProductController::class, 'index'])->middleware('auth')->name('products');
+Route::post('/products', [\App\Http\Controllers\ProductController::class, 'store'])->middleware('auth');
+Route::put('/products/{product}', [\App\Http\Controllers\ProductController::class, 'update'])->middleware('auth')->name('products.update');
+Route::delete('/products/{product}', [\App\Http\Controllers\ProductController::class, 'destroy'])->middleware('auth')->name('products.destroy');
 
-require __DIR__.'/auth.php';
+//News functions
+Route::get('/news', [\App\Http\Controllers\NewsController::class, 'index'])->middleware('auth')->name('news');
+Route::post('/news', [\App\Http\Controllers\NewsController::class, 'store'])->middleware('auth');
+Route::put('/news/{news}', [\App\Http\Controllers\NewsController::class, 'update'])->middleware('auth')->name('news.update');
+Route::delete('/news/{news}', [\App\Http\Controllers\NewsController::class, 'destroy'])->middleware('auth')->name('news.destroy');
+
+//Careers functions
+Route::get('/careers', [CareerController::class, 'index'])->middleware('auth')->name('careers');
+Route::post('/careers', [CareerController::class, 'store'])->middleware('auth');
+Route::put('/careers/{career}', [CareerController::class, 'update'])->middleware('auth')->name('careers.update');
+Route::delete('/careers/{career}', [CareerController::class, 'destroy'])->middleware('auth')->name('careers.destroy');
+
+Route::post('/access-registers', [AccessRegisterController::class, 'store'])->name('access-registers.store');
+Route::post('/access-register/login', [AccessRegisterController::class, 'login'])->name('access-register.login');
+
+Route::post('/access-logout', [AccessRegisterController::class, 'logout'])->name('access.logout');
+
+// require __DIR__.'/auth.php';

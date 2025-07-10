@@ -19,7 +19,7 @@
             <nav class="flex-1">
                 <ul class="space-y-2">
                     <li>
-                        <a href="/"
+                        <a href="/dashboard"
                             class="block px-4 py-3 rounded-lg border border-transparent transition-all duration-200 bg-gray-700 hover:bg-gray-600 hover:border-gray-400 hover:shadow-md hover:text-white">
                             Dashboard
                         </a>
@@ -42,24 +42,47 @@
                             Careers
                         </a>
                     </li>
+                    <li>
+                        <button @click="logoutModalOpen = true"
+                            class="w-full text-left block px-4 py-3 rounded-lg border border-transparent transition-all duration-200 bg-red-700 hover:bg-red-600 hover:border-red-400 hover:shadow-md hover:text-white">
+                            Logout
+                        </button>
+                    </li>
                 </ul>
             </nav>
         </aside>
         <!-- Main content -->
-        <div class="flex-1 p-4 lg:p-8 bg-gray-100 min-h-screen w-full">
-            <!-- Mobile/Tablet top bar -->
-            <div class="lg:hidden flex items-center justify-between mb-4">
-                <div class="text-xl font-bold">Leads admin Side</div>
-                <button class="text-gray-800 text-2xl focus:outline-none" @click="sidebarOpen = true">
-                    &#9776;
-                </button>
+        <div class="flex-1 bg-gray-100 min-h-screen overflow-x-auto">
+            <!-- Header bar for mobile/tablet -->
+            <div class="lg:hidden w-full bg-green-200">
+                <div class="flex items-center justify-between px-4 py-3">
+                    <div class="text-xl font-bold">Leads admin Side</div>
+                    <button class="text-gray-800 text-2xl focus:outline-none" @click="sidebarOpen = true">
+                        &#9776;
+                    </button>
+                </div>
             </div>
-            <slot />
+            <div class="p-4 lg:p-8">
+                <slot />
+            </div>
         </div>
     </div>
+    <LogoutModal v-model="logoutModalOpen" @confirm="handleLogout" />
 </template>
 
 <script setup>
 import { ref } from 'vue';
+import LogoutModal from '@/Modals/LogoutModal.vue';
+import { router } from '@inertiajs/vue3';
 const sidebarOpen = ref(false);
+const logoutModalOpen = ref(false);
+
+function handleLogout() {
+    router.post('/access-logout', {}, {
+        onFinish: () => {
+            logoutModalOpen.value = false;
+            window.location.href = '/login';
+        }
+    });
+}
 </script>

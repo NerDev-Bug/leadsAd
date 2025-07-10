@@ -16,7 +16,7 @@ class ProductController extends Controller
         $products = product::orderBy('created_at', 'desc')
             ->paginate($perPage);
 
-        return inertia('Products', [
+        return inertia('SubPage/Products', [
             'products' => $products->items(),
             'pagination' => [
                 'current_page' => $products->currentPage(),

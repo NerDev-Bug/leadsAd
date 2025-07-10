@@ -15,7 +15,7 @@ class CareerController extends Controller
     {
         $perPage = 20;
         $careers = Career::orderBy('created_at', 'desc')->paginate($perPage);
-        return Inertia::render('Careers', [
+        return Inertia::render('SubPage/Careers', [
             'careers' => $careers->items(),
             'pagination' => [
                 'current_page' => $careers->currentPage(),

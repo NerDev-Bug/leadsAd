@@ -17,7 +17,7 @@ class NewsController extends Controller
         $news = News::orderBy('published_at', 'desc')
             ->paginate($perPage);
 
-        return inertia('News', [
+        return inertia('SubPage/News', [
             'news' => $news->items(),
             'pagination' => [
                 'current_page' => $news->currentPage(),

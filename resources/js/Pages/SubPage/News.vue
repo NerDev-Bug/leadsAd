@@ -123,12 +123,26 @@ function handlePageChanged(page) {
                             </td>
                             <!-- Article Images (featured_image_2, multiple) -->
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex space-x-2">
+                                <div class="relative h-16 w-32 flex items-center">
                                     <template v-if="newsItem.featured_image_2">
-                                        <template v-for="(img, idx) in newsItem.featured_image_2.split(',')" :key="idx">
-                                            <img v-if="img.trim()" :src="`/storage/${img.trim()}`" alt="Article Image"
-                                                 class="h-16 w-24 object-cover rounded shadow-sm" />
+                                        <template v-for="(img, idx) in newsItem.featured_image_2.split(',').filter(i => i.trim()).slice(0, 3)" :key="idx">
+                                            <img
+                                                :src="`/storage/${img.trim()}`"
+                                                alt="Article Image"
+                                                class="absolute h-16 w-24 object-cover rounded shadow-sm border-2 border-white transition-all duration-200"
+                                                :style="{
+                                                    left: `${idx * 24}px`,
+                                                    zIndex: 10 + idx
+                                                }"
+                                            />
                                         </template>
+                                        <span
+                                            v-if="newsItem.featured_image_2.split(',').filter(i => i.trim()).length > 3"
+                                            class="absolute left-[72px] top-1/2 -translate-y-1/2 bg-gray-700 text-white text-xs px-2 py-1 rounded shadow"
+                                            :style="{ zIndex: 20 }"
+                                        >
+                                            +{{ newsItem.featured_image_2.split(',').filter(i => i.trim()).length - 3 }}
+                                        </span>
                                     </template>
                                     <template v-else>
                                         <div class="h-16 w-24 bg-gray-200 rounded flex items-center justify-center">
