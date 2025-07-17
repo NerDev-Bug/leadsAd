@@ -29,9 +29,9 @@
                     class="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold transition">
                     Cancel
                 </button>
-                <button @click="deleteCareer"
-                    class="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-semibold transition">
-                    Delete
+                <button @click="confirmDelete"
+                    class="px-4 py-2 rounded bg-red-600 hover:bg-red-700 text-white font-semibold transition" :disabled="isDeleting">
+                    {{ isDeleting ? 'Deleting...' : 'Delete' }}
                 </button>
             </div>
         </div>
@@ -39,7 +39,7 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
+import { ref, defineProps, defineEmits } from 'vue';
 import { router } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 
@@ -47,29 +47,56 @@ const props = defineProps({
     modelValue: Boolean,
     career: Object
 });
-const emit = defineEmits(['update:modelValue', 'deleted']);
+const emit = defineEmits(['update:modelValue']);
 
-function deleteCareer() {
-    if (!props.career || !props.career.id) return;
-    router.delete(`/careers/${props.career.id}`, {
-        onSuccess: () => {
-            emit('update:modelValue', false);
-            emit('deleted', props.career);
-            Swal.fire({
-                title: 'Deleted!',
-                text: 'Career posting deleted successfully!',
-                icon: 'success',
-                confirmButtonColor: '#3085d6',
-            });
-        },
-        onError: (errors) => {
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to delete career posting.',
-                icon: 'error',
-                confirmButtonColor: '#d33',
-            });
-        }
-    });
-}
+const isDeleting = ref(false);
+
+const confirmDelete = async () => {
+    if (!props.career || !props.career.id) {
+        Swal.fire({
+            title: 'Error!',
+            text: 'No career selected for deletion.',
+            icon: 'error',
+            confirmButtonColor: '#d33',
+        });
+        return;
+    }
+
+    isDeleting.value = true;
+
+    try {
+        await router.delete(`/careers/${props.career.id}`, {
+            onSuccess: () => {
+                emit('update:modelValue', false);
+                Swal.fire({
+                    title: 'Deleted!',
+                    text: 'Career posting deleted successfully!',
+                    icon: 'success',
+                    confirmButtonColor: '#3085d6',
+                }).then(() => {
+                    router.visit('/careers');
+                });
+            },
+            onError: (errors) => {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to delete career posting.',
+                    icon: 'error',
+                    confirmButtonColor: '#d33',
+                });
+            },
+            onFinish: () => {
+                isDeleting.value = false;
+            }
+        });
+    } catch (error) {
+        isDeleting.value = false;
+        Swal.fire({
+            title: 'Error!',
+            text: 'An unexpected error occurred. Please try again.',
+            icon: 'error',
+            confirmButtonColor: '#d33',
+        });
+    }
+};
 </script>

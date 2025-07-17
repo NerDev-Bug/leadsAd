@@ -109,12 +109,9 @@ class AccessRegisterController extends Controller
 
     public function logout(Request $request)
     {
-        Auth::guard('web')->logout();
+        Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        if ($request->wantsJson() || $request->expectsJson()) {
-            return response()->json(['message' => 'Logged out'], 200);
-        }
         return redirect('/login');
     }
 }
