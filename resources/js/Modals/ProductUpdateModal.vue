@@ -78,7 +78,7 @@
                         <label class="block text-gray-700 font-medium mb-1">Image 1 (Logo)</label>
                         <div v-if="form.currentImage1" class="mb-2">
                             <p class="text-sm text-gray-600 mb-1">Current Image:</p>
-                            <img :src="`/storage/${form.currentImage1}`" alt="Current Image 1" class="h-16 w-16 object-cover rounded border" />
+                            <img :src="`/products_image/${form.currentImage1.replace('products/', '')}`" alt="Current Image 1" class="h-16 w-16 object-cover rounded border" />
                         </div>
                         <input type="file" @change="onFileChange($event, 1)"
                             :class="['w-full border rounded-lg p-2 bg-white focus:outline-none', image1Error ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500']"
@@ -92,7 +92,7 @@
                         <label class="block text-gray-700 font-medium mb-1">Image 2 (Name)</label>
                         <div v-if="form.currentImage2" class="mb-2">
                             <p class="text-sm text-gray-600 mb-1">Current Image:</p>
-                            <img :src="`/storage/${form.currentImage2}`" alt="Current Image 2" class="h-16 w-16 object-cover rounded border" />
+                            <img :src="`/products_image/${form.currentImage2.replace('products/', '')}`" alt="Current Image 2" class="h-16 w-16 object-cover rounded border" />
                         </div>
                         <input type="file" @change="onFileChange($event, 2)"
                             :class="['w-full border rounded-lg p-2 bg-white focus:outline-none', image2Error ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500']"

@@ -39,7 +39,7 @@
                         <!-- Featured Image 1 -->
                         <div>
                             <img v-if="news.featured_image"
-                                 :src="`/storage/${news.featured_image}`"
+                                 :src="`/news_image/${news.featured_image.replace('news/', '')}`"
                                  alt="Featured Image"
                                  class="w-16 h-12 object-cover rounded" />
                             <div v-else class="w-16 h-12 bg-gray-200 rounded flex items-center justify-center">
@@ -49,7 +49,7 @@
                         <!-- Featured Image 2 -->
                         <div>
                             <img v-if="news.featured_image_2"
-                                 :src="`/storage/${news.featured_image_2}`"
+                                 :src="`/news_image/${news.featured_image_2.replace('news/', '')}`"
                                  alt="Featured Image 2"
                                  class="w-16 h-12 object-cover rounded" />
                             <div v-else class="w-16 h-12 bg-gray-200 rounded flex items-center justify-center">

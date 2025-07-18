@@ -56,10 +56,16 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image1')) {
-            $validated['image1'] = $request->file('image1')->store('products', 'public');
+            $file = $request->file('image1');
+            $filename = uniqid() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('products_image'), $filename);
+            $validated['image1'] = 'products/' . $filename;
         }
         if ($request->hasFile('image2')) {
-            $validated['image2'] = $request->file('image2')->store('products', 'public');
+            $file = $request->file('image2');
+            $filename = uniqid() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('products_image'), $filename);
+            $validated['image2'] = 'products/' . $filename;
         }
 
         $product = product::create($validated);
@@ -104,17 +110,25 @@ class ProductController extends Controller
         if ($request->hasFile('image1')) {
             // Delete old image if exists
             if ($product->image1) {
-                \Storage::disk('public')->delete($product->image1);
+                $filename = str_replace('products/', '', $product->image1);
+                @unlink(public_path('products_image/' . $filename));
             }
-            $validated['image1'] = $request->file('image1')->store('products', 'public');
+            $file = $request->file('image1');
+            $filename = uniqid() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('products_image'), $filename);
+            $validated['image1'] = 'products/' . $filename;
         }
 
         if ($request->hasFile('image2')) {
             // Delete old image if exists
             if ($product->image2) {
-                \Storage::disk('public')->delete($product->image2);
+                $filename = str_replace('products/', '', $product->image2);
+                @unlink(public_path('products_image/' . $filename));
             }
-            $validated['image2'] = $request->file('image2')->store('products', 'public');
+            $file = $request->file('image2');
+            $filename = uniqid() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('products_image'), $filename);
+            $validated['image2'] = 'products/' . $filename;
         }
 
         $product->update($validated);
@@ -129,10 +143,12 @@ class ProductController extends Controller
     {
         // Delete associated images
         if ($product->image1) {
-            \Storage::disk('public')->delete($product->image1);
+            $filename = str_replace('products/', '', $product->image1);
+            @unlink(public_path('products_image/' . $filename));
         }
         if ($product->image2) {
-            \Storage::disk('public')->delete($product->image2);
+            $filename = str_replace('products/', '', $product->image2);
+            @unlink(public_path('products_image/' . $filename));
         }
 
         $product->delete();

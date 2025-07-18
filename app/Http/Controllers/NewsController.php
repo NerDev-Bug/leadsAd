@@ -55,14 +55,19 @@ class NewsController extends Controller
 
         // Handle featured image uploads
         if ($request->hasFile('featured_image')) {
-            $validated['featured_image'] = $request->file('featured_image')->store('news', 'public');
+            $file = $request->file('featured_image');
+            $filename = uniqid() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('news_image'), $filename);
+            $validated['featured_image'] = 'news/' . $filename;
         }
 
         // Handle featured_image_2 (multiple files)
         $image2Paths = [];
         if ($request->hasFile('featured_image_2')) {
             foreach ($request->file('featured_image_2') as $file) {
-                $image2Paths[] = $file->store('news', 'public');
+                $filename = uniqid() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('news_image'), $filename);
+                $image2Paths[] = 'news/' . $filename;
             }
             $validated['featured_image_2'] = implode(',', $image2Paths);
         }
@@ -105,9 +110,13 @@ class NewsController extends Controller
         // Handle featured_image (single)
         if ($request->hasFile('featured_image')) {
             if ($news->featured_image) {
-                \Storage::disk('public')->delete($news->featured_image);
+                $filename = str_replace('news/', '', $news->featured_image);
+                @unlink(public_path('news_image/' . $filename));
             }
-            $validated['featured_image'] = $request->file('featured_image')->store('news', 'public');
+            $file = $request->file('featured_image');
+            $filename = uniqid() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('news_image'), $filename);
+            $validated['featured_image'] = 'news/' . $filename;
         }
 
         // Handle featured_image_2 (multiple)
@@ -115,12 +124,15 @@ class NewsController extends Controller
             // Delete old images if you want to clean up
             if ($news->featured_image_2) {
                 foreach (explode(',', $news->featured_image_2) as $oldImage) {
-                    \Storage::disk('public')->delete($oldImage);
+                    $filename = str_replace('news/', '', $oldImage);
+                    @unlink(public_path('news_image/' . $filename));
                 }
             }
             $image2Paths = [];
             foreach ($request->file('featured_image_2') as $file) {
-                $image2Paths[] = $file->store('news', 'public');
+                $filename = uniqid() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('news_image'), $filename);
+                $image2Paths[] = 'news/' . $filename;
             }
             $validated['featured_image_2'] = implode(',', $image2Paths);
         }
@@ -137,10 +149,14 @@ class NewsController extends Controller
     {
         // Delete associated images
         if ($news->featured_image) {
-            \Storage::disk('public')->delete($news->featured_image);
+            $filename = str_replace('news/', '', $news->featured_image);
+            @unlink(public_path('news_image/' . $filename));
         }
         if ($news->featured_image_2) {
-            \Storage::disk('public')->delete($news->featured_image_2);
+            foreach (explode(',', $news->featured_image_2) as $oldImage) {
+                $filename = str_replace('news/', '', $oldImage);
+                @unlink(public_path('news_image/' . $filename));
+            }
         }
 
         $news->delete();

@@ -99,14 +99,14 @@ function handlePageChanged(page) {
                     <tbody class="bg-white divide-y divide-gray-200">
                         <tr v-for="product in products" :key="product.id" class="hover:bg-gray-50">
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <img v-if="product.image1" :src="`/storage/${product.image1}`" alt="Image 1"
+                                <img v-if="product.image1" :src="`/products_image/${product.image1.replace('products/', '')}`" alt="Image 1"
                                     class="h-12 w-12 object-cover rounded shadow-sm" />
                                 <div v-else class="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
                                     <span class="text-gray-400 text-xs">No Image</span>
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <img v-if="product.image2" :src="`/storage/${product.image2}`" alt="Image 2"
+                                <img v-if="product.image2" :src="`/products_image/${product.image2.replace('products/', '')}`" alt="Image 2"
                                     class="h-12 w-12 object-cover rounded shadow-sm" />
                                 <div v-else class="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
                                     <span class="text-gray-400 text-xs">No Image</span>

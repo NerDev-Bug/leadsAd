@@ -28,7 +28,7 @@
             <!-- Product Info -->
             <div v-if="product" class="mb-6 p-4 bg-gray-50 rounded-lg">
                 <div class="flex items-center space-x-3">
-                    <img v-if="product.image1" :src="`/storage/${product.image1}`" alt="Product" class="w-12 h-12 object-cover rounded" />
+                    <img v-if="product.image1" :src="`/products_image/${product.image1.replace('products/', '')}`" alt="Product" class="w-12 h-12 object-cover rounded" />
                     <div class="flex-1">
                         <p class="font-medium text-gray-900">{{ product.description }}</p>
                         <p class="text-sm text-gray-600">{{ product.category }} - {{ product.type }}</p>

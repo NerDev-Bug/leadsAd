@@ -58,7 +58,7 @@
                         <label class="block text-gray-700 font-medium mb-1">Featured Image</label>
                         <div v-if="form.currentFeaturedImage" class="mb-2">
                             <p class="text-sm text-gray-600 mb-1">Current Image:</p>
-                            <img :src="`/storage/${form.currentFeaturedImage}`" alt="Current Featured Image" class="h-24 w-32 object-cover rounded border" />
+                            <img :src="`/news_image/${form.currentFeaturedImage.replace('news/', '')}`" alt="Current Featured Image" class="h-24 w-32 object-cover rounded border" />
                         </div>
                         <input type="file" @change="onFileChange"
                             :class="['w-full border rounded-lg p-3 bg-white focus:outline-none', imageError ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500']"
@@ -72,7 +72,7 @@
                         <label class="block text-gray-700 font-medium mb-1">Featured Image 2</label>
                         <div v-if="form.currentFeaturedImage2" class="flex flex-wrap gap-2 mb-2">
                             <div v-for="(img, idx) in form.currentFeaturedImage2.split(',')" :key="idx" class="w-16 h-16 bg-gray-100 rounded overflow-hidden flex items-center justify-center border">
-                                <img v-if="img.trim()" :src="`/storage/${img.trim()}`" alt="Current Featured Image 2" class="object-cover w-full h-full" />
+                                <img v-if="img.trim()" :src="`/news_image/${img.trim().replace('news/', '')}`" alt="Current Featured Image 2" class="object-cover w-full h-full" />
                             </div>
                         </div>
                         <input type="file" @change="onFileChange2" multiple

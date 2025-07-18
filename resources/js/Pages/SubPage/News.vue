@@ -113,7 +113,7 @@ function handlePageChanged(page) {
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div>
                                     <img v-if="newsItem.featured_image"
-                                         :src="`/storage/${newsItem.featured_image}`"
+                                         :src="`/news_image/${newsItem.featured_image.replace('news/', '')}`"
                                          alt="Featured Image"
                                          class="h-16 w-24 object-cover rounded shadow-sm" />
                                     <div v-else class="h-16 w-24 bg-gray-200 rounded flex items-center justify-center">
@@ -127,7 +127,7 @@ function handlePageChanged(page) {
                                     <template v-if="newsItem.featured_image_2">
                                         <template v-for="(img, idx) in newsItem.featured_image_2.split(',').filter(i => i.trim()).slice(0, 3)" :key="idx">
                                             <img
-                                                :src="`/storage/${img.trim()}`"
+                                                :src="`/news_image/${img.trim().replace('news/', '')}`"
                                                 alt="Article Image"
                                                 class="absolute h-16 w-24 object-cover rounded shadow-sm border-2 border-white transition-all duration-200"
                                                 :style="{
