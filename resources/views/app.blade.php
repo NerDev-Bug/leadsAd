@@ -23,7 +23,7 @@
     if (window.history && window.history.pushState) {
         window.history.pushState(null, "", window.location.href);
         window.onpopstate = function () {
-            window.location.href = "/login"; // or use Inertia.visit('/login') if using Inertia
+            window.location.href = "/"; // or use Inertia.visit('/login') if using Inertia
         };
     }
 </script>

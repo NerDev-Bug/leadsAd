@@ -81,7 +81,7 @@ function handleLogout() {
     router.post('/access-logout', {}, {
         onFinish: () => {
             logoutModalOpen.value = false;
-            window.location.href = '/login';
+            window.location.href = '/';
         }
     });
 }

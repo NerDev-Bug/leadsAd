@@ -15,7 +15,7 @@ Route::get('/register', function () {
     return Inertia::render('AccessRegister');
 })->name('register');
 
-Route::get('/login', function () {
+Route::get('/', function () {
     return Inertia::render('LoginForm');
 })->middleware('guest')->name('login');
 
