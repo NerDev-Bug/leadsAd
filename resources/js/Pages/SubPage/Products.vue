@@ -1,6 +1,6 @@
 <script setup>
 import SidebarLayout from '@/Layouts/SidebarLayout.vue';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import ProductModal from '@/Modals/ProductModal.vue';
 import ProductUpdateModal from '@/Modals/ProductUpdateModal.vue';
 import ProductDeleteModal from '@/Modals/ProductDeleteModal.vue';
@@ -22,8 +22,9 @@ function handleProductSubmit(product) {
 }
 
 const page = usePage();
-const products = page.props.products || [];
-const pagination = page.props.pagination || {
+
+const products = computed(() => page.props.products || []);
+const pagination = computed(() => page.props.pagination || {
     current_page: 1,
     last_page: 1,
     per_page: 20,
@@ -32,7 +33,7 @@ const pagination = page.props.pagination || {
     to: 0,
     has_more_pages: false,
     has_previous_page: false
-};
+});
 
 function truncateText(text, maxLength = 15) {
     if (!text) return '';

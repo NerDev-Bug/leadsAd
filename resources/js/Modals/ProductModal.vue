@@ -69,7 +69,7 @@
                             <option value="Fungicide">Fungicide</option>
                             <option value="Biostimulant">Biostimulant</option>
                             <option value="Insecticide">Insecticide</option>
-                            <option value="Mollusicide">Mollusicide</option>
+                            <option value="Molluscicide">Molluscicide</option>
                         </select>
                     </div>
                     <div>

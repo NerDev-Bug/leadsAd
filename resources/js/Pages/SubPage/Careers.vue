@@ -1,6 +1,6 @@
 <script setup>
 import SidebarLayout from '@/Layouts/SidebarLayout.vue';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import CareersModal from '@/Modals/CareersModal.vue';
 import CareersUpdateModal from '@/Modals/CareersUpdateModal.vue';
 import CareersDeleteModal from '@/Modals/CareersDeleteModal.vue';
@@ -22,8 +22,9 @@ function handleCareersSubmit(career) {
 }
 
 const page = usePage();
-const careers = page.props.careers || [];
-const pagination = page.props.pagination || {
+
+const careers = computed(() => page.props.careers || []);
+const pagination = computed(() => page.props.pagination || {
     current_page: 1,
     last_page: 1,
     per_page: 20,
@@ -32,7 +33,7 @@ const pagination = page.props.pagination || {
     to: 0,
     has_more_pages: false,
     has_previous_page: false
-};
+});
 
 function truncateText(text, maxLength = 30) {
     if (!text) return '';
