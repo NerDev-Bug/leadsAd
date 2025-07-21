@@ -1,6 +1,6 @@
 <script setup>
 import SidebarLayout from '@/Layouts/SidebarLayout.vue';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import CareersModal from '@/Modals/CareersModal.vue';
 import CareersUpdateModal from '@/Modals/CareersUpdateModal.vue';
 import CareersDeleteModal from '@/Modals/CareersDeleteModal.vue';
@@ -69,16 +69,35 @@ function handleCareerDeleted(deletedCareer) {
 function handlePageChanged(page) {
     console.log('Page changed to:', page);
 }
+
+// --- Search Bar Logic ---
+const search = ref(page.props.search || '');
+let searchTimeout = null;
+
+watch(search, (newVal, oldVal) => {
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        router.get(
+            '/careers',
+            { search: newVal },
+            { preserveState: true, replace: true }
+        );
+    }, 2000); // 2 seconds debounce
+});
 </script>
 
 <template>
     <SidebarLayout>
         <div class="max-w-7xl mx-auto">
-            <div class="flex justify-start items-center mb-4">
-                <h1 class="text-2xl font-bold">Careers Management</h1>
-            </div>
-            <div class="flex justify-end items-center mb-6">
-                <button class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow transition duration-200"
+            <h1 class="text-2xl font-bold mb-4">Careers Management</h1>
+            <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 w-full">
+                <input
+                    v-model="search"
+                    type="text"
+                    placeholder="Search careers..."
+                    class="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow transition duration-200 sm:ml-0 sm:mt-0 mt-2"
                     @click="openCareersModal">
                     + Add Career
                 </button>

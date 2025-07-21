@@ -14,7 +14,24 @@ class CareerController extends Controller
     public function index(Request $request)
     {
         $perPage = 20;
-        $careers = Career::orderBy('created_at', 'desc')->paginate($perPage);
+        $query = Career::orderBy('created_at', 'desc');
+
+        // Search logic
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('employment_type', 'like', "%$search%")
+                  ->orWhere('position', 'like', "%$search%")
+                  ->orWhere('details', 'like', "%$search%")
+                  ->orWhere('location', 'like', "%$search%")
+                  ->orWhere('job_description', 'like', "%$search%")
+                ;
+            });
+        } else {
+            $search = '';
+        }
+
+        $careers = $query->paginate($perPage)->appends(['search' => $search]);
         return Inertia::render('SubPage/Careers', [
             'careers' => $careers->items(),
             'pagination' => [
@@ -26,7 +43,8 @@ class CareerController extends Controller
                 'to' => $careers->lastItem() ?? 0,
                 'has_more_pages' => $careers->hasMorePages(),
                 'has_previous_page' => !$careers->onFirstPage(),
-            ]
+            ],
+            'search' => $search,
         ]);
     }
 

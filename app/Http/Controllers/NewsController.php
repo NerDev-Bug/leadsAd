@@ -14,8 +14,21 @@ class NewsController extends Controller
     public function index(Request $request)
     {
         $perPage = 20;
-        $news = News::orderBy('published_at', 'desc')
-            ->paginate($perPage);
+        $query = News::orderBy('published_at', 'desc');
+
+        // Search logic
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%$search%")
+                  ->orWhere('content', 'like', "%$search%")
+                ;
+            });
+        } else {
+            $search = '';
+        }
+
+        $news = $query->paginate($perPage)->appends(['search' => $search]);
 
         return inertia('SubPage/News', [
             'news' => $news->items(),
@@ -28,7 +41,8 @@ class NewsController extends Controller
                 'to' => $news->lastItem() ?? 0,
                 'has_more_pages' => $news->hasMorePages(),
                 'has_previous_page' => !$news->onFirstPage(),
-            ]
+            ],
+            'search' => $search,
         ]);
     }
 

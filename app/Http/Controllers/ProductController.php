@@ -13,8 +13,25 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $perPage = 20;
-        $products = product::orderBy('created_at', 'desc')
-            ->paginate($perPage);
+        $query = product::orderBy('created_at', 'desc');
+
+        // Search logic
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('description', 'like', "%$search%")
+                  ->orWhere('features', 'like', "%$search%")
+                  ->orWhere('dosage', 'like', "%$search%")
+                  ->orWhere('target', 'like', "%$search%")
+                  ->orWhere('category', 'like', "%$search%")
+                  ->orWhere('type', 'like', "%$search%")
+                ;
+            });
+        } else {
+            $search = '';
+        }
+
+        $products = $query->paginate($perPage)->appends(['search' => $search]);
 
         return inertia('SubPage/Products', [
             'products' => $products->items(),
@@ -27,7 +44,8 @@ class ProductController extends Controller
                 'to' => $products->lastItem() ?? 0,
                 'has_more_pages' => $products->hasMorePages(),
                 'has_previous_page' => !$products->onFirstPage(),
-            ]
+            ],
+            'search' => $search,
         ]);
     }
 

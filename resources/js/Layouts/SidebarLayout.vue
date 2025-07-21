@@ -10,7 +10,7 @@
             'lg:relative lg:translate-x-0 lg:w-64 lg:min-h-screen'
         ]">
             <div class="text-2xl font-bold mb-8 flex items-center justify-between">
-                Leads admin Side
+                LAPC admin Side
                 <hr>
                 <button class="lg:hidden text-white text-2xl focus:outline-none" @click="sidebarOpen = false">
                     &times;
@@ -54,9 +54,9 @@
         <!-- Main content -->
         <div class="flex-1 bg-gray-100 min-h-screen overflow-x-auto">
             <!-- Header bar for mobile/tablet -->
-            <div class="lg:hidden w-full bg-green-200">
+            <div class="lg:hidden w-full bg-green-400">
                 <div class="flex items-center justify-between px-4 py-3">
-                    <div class="text-xl font-bold">Leads admin Side</div>
+                    <div class="text-xl font-bold">LAPC admin Side</div>
                     <button class="text-gray-800 text-2xl focus:outline-none" @click="sidebarOpen = true">
                         &#9776;
                     </button>

@@ -8,7 +8,14 @@ use App\Http\Controllers\CareerController;
 use App\Http\Controllers\AccessRegisterController;
 
 Route::get('/dashboard', function () {
-    return Inertia::render('SubPage/Dashboard');
+    $productsCount = \App\Models\product::count();
+    $newsCount = \App\Models\News::count();
+    $careersCount = \App\Models\Career::count();
+    return Inertia::render('SubPage/Dashboard', [
+        'productsCount' => $productsCount,
+        'newsCount' => $newsCount,
+        'careersCount' => $careersCount,
+    ]);
 })->middleware('auth')->name('dashboard');
 
 Route::get('/register', function () {
