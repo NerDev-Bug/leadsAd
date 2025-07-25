@@ -81,7 +81,8 @@ function handleLogout() {
     router.post('/access-logout', {}, {
         onFinish: () => {
             logoutModalOpen.value = false;
-            window.location.href = '/';
+            // Use Inertia.visit for SPA navigation
+            router.visit('/');
         }
     });
 }

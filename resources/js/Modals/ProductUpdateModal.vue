@@ -69,7 +69,7 @@
                             <option value="Fungicide">Fungicide</option>
                             <option value="Biostimulant">Biostimulant</option>
                             <option value="Insecticide">Insecticide</option>
-                            <option value="Mollusicide">Mollusicide</option>
+                            <option value="Molluscicide">Molluscicide</option>
                         </select>
                     </div>
 
@@ -83,7 +83,7 @@
                         <input type="file" @change="onFileChange($event, 1)"
                             :class="['w-full border rounded-lg p-2 bg-white focus:outline-none', image1Error ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500']"
                             accept=".jpg,.jpeg,.png" />
-                        <p class="text-xs text-gray-500 mt-1">Leave empty to keep current image</p>
+                        <p class="text-xs text-gray-500 mt-1">Leave empty to keep current image(Resolution: 550x580)</p>
                         <p v-if="image1Error" class="text-red-500 text-sm mt-1">{{ image1Error }}</p>
                     </div>
 

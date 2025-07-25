@@ -1,15 +1,11 @@
 <template>
     <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div
-            class="relative w-full max-w-lg mx-2 sm:mx-4 md:mx-0 bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 max-h-[90vh] flex flex-col overflow-y-auto"
-            @click.stop
-        >
+        <div class="relative w-full max-w-lg mx-2 sm:mx-4 md:mx-0 bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 max-h-[90vh] flex flex-col overflow-y-auto"
+            @click.stop>
             <!-- Close Button -->
             <button
                 class="absolute top-3 right-3 text-gray-700 text-3xl w-10 h-10 flex items-center justify-center rounded-full hover:text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                @click="$emit('update:modelValue', false)"
-                aria-label="Close modal"
-            >
+                @click="$emit('update:modelValue', false)" aria-label="Close modal">
                 &times;
             </button>
             <!-- Modal Title -->
@@ -18,40 +14,52 @@
             <form @submit.prevent="submitForm" class="flex-1 flex flex-col justify-between">
                 <div class="grid grid-cols-1 gap-4">
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Description<span class="text-red-500">*</span></label>
+                        <label class="block text-gray-700 font-medium mb-1">Description<span
+                                class="text-red-500">*</span></label>
                         <textarea v-model="form.description" @input="handleInput('description')"
                             class="w-full border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none min-h-[60px]"
                             required></textarea>
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Features & Benefits<span class="text-red-500">*</span></label>
+                        <label class="block text-gray-700 font-medium mb-1">Features & Benefits<span
+                                class="text-red-500">*</span></label>
                         <textarea v-model="form.features" @input="handleInput('features')"
                             class="w-full border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none min-h-[60px]"
                             required></textarea>
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Dosage<span class="text-red-500">*</span></label>
+                        <label class="block text-gray-700 font-medium mb-1">Dosage<span
+                                class="text-red-500">*</span></label>
                         <div v-for="(dosage, idx) in form.dosages" :key="idx" class="flex items-center mb-2 gap-2">
                             <input v-model="form.dosages[idx]" @input="handleArrayInput('dosages', idx)" type="text"
                                 class="flex-1 border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                 required />
-                            <button type="button" @click="removeDosage(idx)" v-if="form.dosages.length > 1" class="text-red-500 hover:text-red-700 text-xl px-2 py-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">&minus;</button>
+                            <button type="button" @click="removeDosage(idx)" v-if="form.dosages.length > 1"
+                                class="text-red-500 hover:text-red-700 text-xl px-2 py-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">&minus;</button>
                         </div>
-                        <button type="button" @click="addDosage" class="mt-1 text-blue-600 hover:text-blue-800 text-sm font-semibold focus:outline-none focus:underline">+ Add Dosage</button>
+                        <button type="button" @click="addDosage"
+                            class="mt-1 text-blue-600 hover:text-blue-800 text-sm font-semibold focus:outline-none focus:underline">+
+                            Add Dosage</button>
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Target<span class="text-red-500">*</span></label>
+                        <label class="block text-gray-700 font-medium mb-1">Target<span
+                                class="text-red-500">*</span></label>
                         <div v-for="(target, idx) in form.targets" :key="idx" class="flex items-center mb-2 gap-2">
                             <input v-model="form.targets[idx]" @input="handleArrayInput('targets', idx)" type="text"
                                 class="flex-1 border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                 required />
-                            <button type="button" @click="removeTarget(idx)" v-if="form.targets.length > 1" class="text-red-500 hover:text-red-700 text-xl px-2 py-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">&minus;</button>
+                            <button type="button" @click="removeTarget(idx)" v-if="form.targets.length > 1"
+                                class="text-red-500 hover:text-red-700 text-xl px-2 py-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">&minus;</button>
                         </div>
-                        <button type="button" @click="addTarget" class="mt-1 text-blue-600 hover:text-blue-800 text-sm font-semibold focus:outline-none focus:underline">+ Add Target</button>
+                        <button type="button" @click="addTarget"
+                            class="mt-1 text-blue-600 hover:text-blue-800 text-sm font-semibold focus:outline-none focus:underline">+
+                            Add Target</button>
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Category<span class="text-red-500">*</span></label>
-                        <select v-model="form.category" required class="w-full border border-gray-400 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                        <label class="block text-gray-700 font-medium mb-1">Category<span
+                                class="text-red-500">*</span></label>
+                        <select v-model="form.category" required
+                            class="w-full border border-gray-400 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             <option value="" disabled selected>— Please choose a category —</option>
                             <option value="Rice">Rice</option>
                             <option value="Mango">Mango</option>
@@ -61,7 +69,8 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Type<span class="text-red-500">*</span></label>
+                        <label class="block text-gray-700 font-medium mb-1">Type<span
+                                class="text-red-500">*</span></label>
                         <select v-model="form.type" required
                             class="w-full border border-gray-400 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             <option value="" disabled selected>— Please choose a type —</option>
@@ -73,14 +82,17 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Image 1(Logo)<span class="text-red-500">*</span></label>
+                        <label class="block text-gray-700 font-medium mb-1">Image 1(Logo)<span
+                                class="text-red-500">*</span></label>
                         <input type="file" @change="onFileChange($event, 1)"
                             :class="['w-full border rounded-lg p-2 bg-white focus:outline-none', image1Error ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500']"
                             required accept=".jpg,.jpeg,.png" />
+                        <p class="text-xs text-gray-500 mt-1">Recommended resolution size: 550x580</p>
                         <p v-if="image1Error" class="text-red-500 text-sm mt-1">{{ image1Error }}</p>
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Image 2(Name)<span class="text-red-500">*</span></label>
+                        <label class="block text-gray-700 font-medium mb-1">Image 2(Name)<span
+                                class="text-red-500">*</span></label>
                         <input type="file" @change="onFileChange($event, 2)"
                             :class="['w-full border rounded-lg p-2 bg-white focus:outline-none', image2Error ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500']"
                             accept=".jpg,.jpeg,.png" />
