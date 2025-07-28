@@ -37,7 +37,7 @@ const careersCount = computed(() => page.props.careersCount ?? 0);
                     <div class="text-lg text-gray-600 mt-2">Total News</div>
                 </div>
                 <!-- Careers Card -->
-                <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center justify-center transition hover:shadow-lg">
+                <!-- <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center justify-center transition hover:shadow-lg">
                     <div class="flex items-center justify-center w-16 h-16 rounded-full bg-yellow-100 mb-4">
                         <svg class="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2" />
@@ -48,7 +48,7 @@ const careersCount = computed(() => page.props.careersCount ?? 0);
                     </div>
                     <div class="text-4xl font-extrabold text-yellow-700">{{ careersCount }}</div>
                     <div class="text-lg text-gray-600 mt-2">Total Careers</div>
-                </div>
+                </div> -->
             </div>
         </div>
     </SidebarLayout>
