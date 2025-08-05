@@ -36,12 +36,12 @@
                             News
                         </a>
                     </li>
-                    <!-- <li>
+                    <li>
                         <a href="/careers"
                             class="block px-4 py-3 rounded-lg border border-transparent transition-all duration-200 bg-gray-700 hover:bg-gray-600 hover:border-gray-400 hover:shadow-md hover:text-white">
                             Careers
                         </a>
-                    </li> -->
+                    </li>
                     <li>
                         <button @click="logoutModalOpen = true"
                             class="w-full text-left block px-4 py-3 rounded-lg border border-transparent transition-all duration-200 bg-red-700 hover:bg-red-600 hover:border-red-400 hover:shadow-md hover:text-white">
