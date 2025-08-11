@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\News;
+use App\Models\ArchiveNews;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -161,20 +162,71 @@ class NewsController extends Controller
      */
     public function destroy(News $news)
     {
-        // Delete associated images
+        // Ensure archive directory exists
+        $archiveDir = public_path('archive_news');
+        if (!is_dir($archiveDir)) {
+            @mkdir($archiveDir, 0775, true);
+        }
+
+        // Move images to archive_news and build archived paths
+        $archivedFeatured = null;
         if ($news->featured_image) {
             $filename = str_replace('news/', '', $news->featured_image);
-            @unlink(public_path('news_image/' . $filename));
-        }
-        if ($news->featured_image_2) {
-            foreach (explode(',', $news->featured_image_2) as $oldImage) {
-                $filename = str_replace('news/', '', $oldImage);
-                @unlink(public_path('news_image/' . $filename));
+            $sourcePath = public_path('news_image/' . $filename);
+            $base = $this->stripCyclePrefix($filename);
+            $targetFilename = 'arch_' . uniqid() . '_' . $base;
+            $targetPath = $archiveDir . DIRECTORY_SEPARATOR . $targetFilename;
+            if (is_file($sourcePath)) {
+                @rename($sourcePath, $targetPath);
+                $archivedFeatured = 'archive_news/' . $targetFilename;
             }
         }
 
+        $archivedImage2 = null;
+        if ($news->featured_image_2) {
+            $archivedList = [];
+            foreach (explode(',', $news->featured_image_2) as $oldImage) {
+                $filename = str_replace('news/', '', trim($oldImage));
+                if ($filename === '') continue;
+                $sourcePath = public_path('news_image/' . $filename);
+                $base = $this->stripCyclePrefix($filename);
+                $targetFilename = 'arch_' . uniqid() . '_' . $base;
+                $targetPath = $archiveDir . DIRECTORY_SEPARATOR . $targetFilename;
+                if (is_file($sourcePath)) {
+                    @rename($sourcePath, $targetPath);
+                    $archivedList[] = 'archive_news/' . $targetFilename;
+                }
+            }
+            if (!empty($archivedList)) {
+                $archivedImage2 = implode(',', $archivedList);
+            }
+        }
+
+        // Store archived record
+        ArchiveNews::create([
+            'original_news_id' => $news->id,
+            'title' => $news->title,
+            'content' => $news->content,
+            'published_at' => $news->published_at,
+            'featured_image' => $archivedFeatured,
+            'featured_image_2' => $archivedImage2,
+        ]);
+
+        // Delete original record
         $news->delete();
 
-        return redirect('/news')->with('success', 'News article deleted successfully!');
+        return redirect('/news')->with('success', 'News article archived successfully!');
+    }
+
+    /**
+     * Strip cyclic prefixes like arch_<uniq>_ or rest_<uniq>_ from the start of a filename.
+     */
+    private function stripCyclePrefix(string $filename): string
+    {
+        // Repeat until no more prefixes
+        while (preg_match('/^(arch|rest)_[^_]+_(.+)$/', $filename, $m)) {
+            $filename = $m[2];
+        }
+        return $filename;
     }
 }

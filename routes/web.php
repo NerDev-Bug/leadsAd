@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\CareerController;
 use App\Http\Controllers\AccessRegisterController;
+use App\Http\Controllers\ArchiveNewsController;
 
 Route::get('/dashboard', function () {
     $productsCount = \App\Models\product::count();
@@ -48,5 +49,9 @@ Route::post('/access-registers', [AccessRegisterController::class, 'store'])->na
 Route::post('/access-register/login', [AccessRegisterController::class, 'login'])->name('access-register.login');
 
 Route::post('/access-logout', [AccessRegisterController::class, 'logout'])->name('access.logout');
+
+// Archive news listing (for modal fetch; supports JSON)
+Route::get('/archive-news', [ArchiveNewsController::class, 'index'])->middleware('auth')->name('archive.news.index');
+Route::post('/archive-news/{archiveNews}/restore', [ArchiveNewsController::class, 'restore'])->middleware('auth')->name('archive.news.restore');
 
 // require __DIR__.'/auth.php';

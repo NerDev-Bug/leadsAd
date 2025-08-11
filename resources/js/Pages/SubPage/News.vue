@@ -4,16 +4,21 @@ import { ref, computed, watch } from 'vue';
 import NewsModal from '@/Modals/NewsModal.vue';
 import NewsUpdateModal from '@/Modals/NewsUpdateModal.vue';
 import NewsDeleteModal from '@/Modals/NewsDeleteModal.vue';
+import ArchiveNewsModal from '@/Modals/ArchiveNewsModal.vue';
 import Pagination from '@/Components/Pagination.vue';
 import { usePage, router } from '@inertiajs/vue3';
 
 const isNewsModalOpen = ref(false);
 const isNewsUpdateModalOpen = ref(false);
 const isNewsDeleteModalOpen = ref(false);
+const isArchiveModalOpen = ref(false);
 const selectedNews = ref(null);
 
 function openNewsModal() {
     isNewsModalOpen.value = true;
+}
+function openArchiveModal() {
+    isArchiveModalOpen.value = true;
 }
 
 function handleNewsSubmit(news) {
@@ -97,10 +102,16 @@ watch(search, (newVal, oldVal) => {
                     placeholder="Search news..."
                     class="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                <button class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow transition duration-200 sm:ml-0 sm:mt-0 mt-2"
-                    @click="openNewsModal">
-                    + Add News
-                </button>
+                <div class="flex gap-2 w-full sm:w-auto">
+                    <button class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow transition duration-200 sm:ml-0 sm:mt-0 mt-2"
+                        @click="openNewsModal">
+                        + Add News
+                    </button>
+                    <button class="w-full sm:w-auto bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded shadow transition duration-200 sm:ml-0 sm:mt-0 mt-2"
+                        @click="openArchiveModal">
+                        Archive
+                    </button>
+                </div>
             </div>
             <div class="overflow-x-auto bg-white rounded-lg shadow">
                 <table class="min-w-full divide-y divide-gray-200">
@@ -240,5 +251,6 @@ watch(search, (newVal, oldVal) => {
         <NewsModal v-model="isNewsModalOpen" @submitted="handleNewsSubmit" />
         <NewsUpdateModal v-model="isNewsUpdateModalOpen" :news="selectedNews" @submitted="handleNewsSubmit" />
         <NewsDeleteModal v-model="isNewsDeleteModalOpen" :news="selectedNews" @deleted="handleNewsDeleted" />
+        <ArchiveNewsModal v-model="isArchiveModalOpen" />
     </SidebarLayout>
 </template>
