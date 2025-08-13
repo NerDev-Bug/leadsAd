@@ -49,8 +49,17 @@
 
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Published Date</label>
-                        <input v-model="form.published_at" type="date"
-                            class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none" />
+                        <VueDatePicker
+                            v-model="form.published_at"
+                            model-type="format"
+                            format="yyyy-MM-dd"
+                            :enable-time-picker="false"
+                            :clearable="true"
+                            :auto-apply="true"
+                            :teleport="true"
+                            input-class-name="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            placeholder="Select date"
+                        />
                         <p class="text-xs text-gray-500 mt-1">Leave empty to use current date</p>
                     </div>
                     <div>
@@ -62,7 +71,7 @@
                         <p v-if="imageError" class="text-red-500 text-sm mt-1">{{ imageError }}</p>
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Featured Image 2</label>
+                        <label class="block text-gray-700 font-medium mb-1">Article Image</label>
                         <input type="file" @change="onFileChange2" multiple
                             :class="['w-full border rounded-lg p-3 bg-white focus:outline-none', image2Error ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500']"
                             accept=".jpg,.jpeg,.png,.webp" />
@@ -71,7 +80,7 @@
                                 <img v-if="img" :src="img" class="object-cover w-full h-full" />
                             </div>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">Recommended size: 1200x630px (optional, you can select multiple images)</p>
+                        <p class="text-xs text-gray-500 mt-1">Recommended size: 1200x630px</p>
                         <p v-if="image2Error" class="text-red-500 text-sm mt-1">{{ image2Error }}</p>
                     </div>
                 </div>
@@ -92,6 +101,7 @@
 import { ref, watch, defineProps, defineEmits } from 'vue';
 import { router } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
+import VueDatePicker from '@vuepic/vue-datepicker';
 
 const props = defineProps({
     modelValue: Boolean

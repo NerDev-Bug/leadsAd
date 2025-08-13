@@ -75,7 +75,7 @@
 
                     <!-- Image 1 Section -->
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Image 1 (Logo)</label>
+                        <label class="block text-gray-700 font-medium mb-1">Product Image</label>
                         <div v-if="form.currentImage1" class="mb-2">
                             <p class="text-sm text-gray-600 mb-1">Current Image:</p>
                             <img :src="`/products_image/${form.currentImage1.replace('products/', '')}`" alt="Current Image 1" class="h-16 w-16 object-cover rounded border" />
@@ -89,7 +89,7 @@
 
                     <!-- Image 2 Section -->
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Image 2 (Name)</label>
+                        <label class="block text-gray-700 font-medium mb-1">Product Name Image</label>
                         <div v-if="form.currentImage2" class="mb-2">
                             <p class="text-sm text-gray-600 mb-1">Current Image:</p>
                             <img :src="`/products_image/${form.currentImage2.replace('products/', '')}`" alt="Current Image 2" class="h-16 w-16 object-cover rounded border" />

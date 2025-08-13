@@ -48,9 +48,17 @@
                     </div>
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Published Date<span class="text-red-500">*</span></label>
-                        <input v-model="form.published_at" type="date"
-                            class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required />
+                        <VueDatePicker
+                            v-model="form.published_at"
+                            model-type="format"
+                            format="yyyy-MM-dd"
+                            :enable-time-picker="false"
+                            :clearable="true"
+                            :auto-apply="true"
+                            :teleport="true"
+                            input-class-name="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                            placeholder="Select date"
+                        />
                     </div>
 
                     <!-- Featured Image Section -->
@@ -69,7 +77,7 @@
 
                     <!-- Featured Image 2 Section -->
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Featured Image 2</label>
+                        <label class="block text-gray-700 font-medium mb-1">Article Image</label>
                         <div v-if="form.currentFeaturedImage2" class="flex flex-wrap gap-2 mb-2">
                             <div v-for="(img, idx) in form.currentFeaturedImage2.split(',')" :key="idx" class="w-16 h-16 bg-gray-100 rounded overflow-hidden flex items-center justify-center border">
                                 <img v-if="img.trim()" :src="`/news_image/${img.trim().replace('news/', '')}`" alt="Current Featured Image 2" class="object-cover w-full h-full" />
@@ -83,7 +91,7 @@
                                 <img v-if="img" :src="img" class="object-cover w-full h-full" />
                             </div>
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">Leave empty to keep current images. You can select multiple images to replace all.</p>
+                        <p class="text-xs text-gray-500 mt-1">Leave empty to keep current images.</p>
                         <p v-if="image2Error" class="text-red-500 text-sm mt-1">{{ image2Error }}</p>
                     </div>
                 </div>
@@ -104,6 +112,7 @@
 import { ref, watch, defineProps, defineEmits } from 'vue';
 import { router } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
+import VueDatePicker from '@vuepic/vue-datepicker';
 
 const props = defineProps({
     modelValue: Boolean,

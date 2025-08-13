@@ -21,6 +21,7 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
+        "@vuepic/vue-datepicker": "9.0.3",
         "sweetalert2": "^11.22.2"
     }
 }

@@ -82,7 +82,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Image 1(Logo)<span
+                        <label class="block text-gray-700 font-medium mb-1">Product Image<span
                                 class="text-red-500">*</span></label>
                         <input type="file" @change="onFileChange($event, 1)"
                             :class="['w-full border rounded-lg p-2 bg-white focus:outline-none', image1Error ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500']"
@@ -91,7 +91,7 @@
                         <p v-if="image1Error" class="text-red-500 text-sm mt-1">{{ image1Error }}</p>
                     </div>
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Image 2(Name)<span
+                        <label class="block text-gray-700 font-medium mb-1">Product Name Image<span
                                 class="text-red-500">*</span></label>
                         <input type="file" @change="onFileChange($event, 2)"
                             :class="['w-full border rounded-lg p-2 bg-white focus:outline-none', image2Error ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500']"
