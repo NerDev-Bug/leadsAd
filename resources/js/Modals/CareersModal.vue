@@ -17,6 +17,7 @@
             <!-- Career Form -->
             <form @submit.prevent="submitForm" class="flex-1 flex flex-col justify-between">
                 <div class="grid grid-cols-1 gap-4">
+                    <!-- Employment Type -->
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Employment Type<span class="text-red-500">*</span></label>
                         <select v-model="form.employment_type"
@@ -27,6 +28,8 @@
                             <option value="Part-time">Part-time</option>
                         </select>
                     </div>
+
+                    <!-- Position -->
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Position<span class="text-red-500">*</span></label>
                         <input v-model="form.position" @input="handleInput('position')"
@@ -34,6 +37,8 @@
                             placeholder="Enter job title"
                             required />
                     </div>
+
+                    <!-- Details -->
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Details<span class="text-red-500">*</span></label>
                         <textarea v-model="form.details" @input="handleInput('details')"
@@ -41,6 +46,8 @@
                             placeholder="Enter job details"
                             required></textarea>
                     </div>
+
+                    <!-- Location -->
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Location<span class="text-red-500">*</span></label>
                         <input v-model="form.location" @input="handleInput('location')"
@@ -48,27 +55,40 @@
                             placeholder="Enter job location"
                             required />
                     </div>
+
+                    <!-- Job Description -->
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Job Description<span class="text-red-500">*</span></label>
-                        <div v-for="(desc, idx) in form.job_description" :key="idx" class="mb-2">
-                            <textarea v-model="form.job_description[idx]" @input="handleJobDescriptionInput(idx)"
+                        <textarea v-model="form.job_description" @input="handleInput('job_description')"
+                            class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none min-h-[100px]"
+                            placeholder="Enter full job description"
+                            required></textarea>
+                    </div>
+
+                    <!-- Qualifications -->
+                    <div>
+                        <label class="block text-gray-700 font-medium mb-1">Qualifications<span class="text-red-500">*</span></label>
+                        <div v-for="(qual, idx) in form.qualifications" :key="idx" class="mb-2">
+                            <textarea v-model="form.qualifications[idx]" @input="handleQualificationInput(idx)"
                                 class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none min-h-[80px]"
-                                :placeholder="`Enter job description section ${idx + 1}...`"
+                                :placeholder="`Enter qualification ${idx + 1}...`"
                                 required></textarea>
                             <div class="flex justify-between items-center mt-1">
-                                <button type="button" @click="removeJobDescription(idx)" v-if="form.job_description.length > 1"
+                                <button type="button" @click="removeQualification(idx)" v-if="form.qualifications.length > 1"
                                     class="text-red-500 hover:text-red-700 text-sm font-semibold focus:outline-none focus:underline">
-                                    Remove Section
+                                    Remove Qualification
                                 </button>
-                                <span class="text-xs text-gray-500">Section {{ idx + 1 }}</span>
+                                <span class="text-xs text-gray-500">Qualification {{ idx + 1 }}</span>
                             </div>
                         </div>
-                        <button type="button" @click="addJobDescription"
+                        <button type="button" @click="addQualification"
                             class="mt-2 text-blue-600 hover:text-blue-800 text-sm font-semibold focus:outline-none focus:underline">
-                            + Add Job Description Section
+                            + Add Qualification
                         </button>
                     </div>
                 </div>
+
+                <!-- Submit Button -->
                 <div class="mt-8">
                     <button type="submit"
                         class="w-full bg-blue-600 text-white text-lg font-semibold py-3 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none transition disabled:opacity-80 disabled:cursor-not-allowed"
@@ -97,7 +117,8 @@ const form = ref({
     position: '',
     details: '',
     location: '',
-    job_description: [''],
+    job_description: '',
+    qualifications: [''],
     processing: false
 });
 
@@ -107,7 +128,8 @@ const resetForm = () => {
         position: '',
         details: '',
         location: '',
-        job_description: [''],
+        job_description: '',
+        qualifications: [''],
         processing: false
     };
 };
@@ -124,26 +146,26 @@ function capitalizeFirst(str) {
 function handleInput(field) {
     form.value[field] = capitalizeFirst(form.value[field]);
 }
-function handleJobDescriptionInput(idx) {
-    form.value.job_description[idx] = capitalizeFirst(form.value.job_description[idx]);
+function handleQualificationInput(idx) {
+    form.value.qualifications[idx] = capitalizeFirst(form.value.qualifications[idx]);
 }
 
-function addJobDescription() {
-    form.value.job_description.push('');
+function addQualification() {
+    form.value.qualifications.push('');
 }
-function removeJobDescription(idx) {
-    if (form.value.job_description.length > 1) {
-        form.value.job_description.splice(idx, 1);
+function removeQualification(idx) {
+    if (form.value.qualifications.length > 1) {
+        form.value.qualifications.splice(idx, 1);
     }
 }
 
 async function submitForm() {
     form.value.processing = true;
-    // Combine job description sections into a single string separated by colons
-    const combinedJobDescription = form.value.job_description.filter(d => d.trim() !== '').join(': ');
+    // Combine qualifications into a single string
+    const combinedQualifications = form.value.qualifications.filter(q => q.trim() !== '').join(': ');
     const payload = {
         ...form.value,
-        job_description: combinedJobDescription
+        qualifications: combinedQualifications
     };
     router.post('/careers', payload, {
         onSuccess: () => {
@@ -158,7 +180,7 @@ async function submitForm() {
                 router.visit('/careers');
             });
         },
-        onError: (errors) => {
+        onError: () => {
             Swal.fire({
                 title: 'Error!',
                 text: 'Failed to add career posting. Please check your input.',

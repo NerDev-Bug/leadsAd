@@ -25,6 +25,7 @@ class CareerController extends Controller
                   ->orWhere('details', 'like', "%$search%")
                   ->orWhere('location', 'like', "%$search%")
                   ->orWhere('job_description', 'like', "%$search%")
+                  ->orWhere('qualifications', 'like', "%$search%")
                 ;
             });
         } else {
@@ -67,6 +68,7 @@ class CareerController extends Controller
             'details' => 'required|string',
             'location' => 'required|string',
             'job_description' => 'required|string',
+            'qualifications' => 'required|string',
         ]);
         Career::create($data);
         return redirect()->route('careers');
@@ -99,6 +101,7 @@ class CareerController extends Controller
             'details' => 'required|string',
             'location' => 'required|string',
             'job_description' => 'required|string',
+            'qualifications' => 'required|string',
         ]);
         $career->update($data);
         return redirect()->route('careers');

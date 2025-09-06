@@ -121,6 +121,9 @@ watch(search, (newVal, oldVal) => {
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Job Description
                             </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Qualification
+                            </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
                                 Action
                             </th>
@@ -151,6 +154,11 @@ watch(search, (newVal, oldVal) => {
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900 max-w-xs" :title="career.job_description">
                                     {{ truncateText(career.job_description, 15) }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900 max-w-xs" :title="career.qualifications">
+                                    {{ truncateText(career.qualifications, 15) }}
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-center">

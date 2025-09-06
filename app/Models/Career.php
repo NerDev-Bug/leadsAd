@@ -16,5 +16,6 @@ class Career extends Model
         'details',
         'location',
         'job_description',
+        'qualifications',
     ];
 }

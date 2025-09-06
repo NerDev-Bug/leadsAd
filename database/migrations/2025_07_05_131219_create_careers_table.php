@@ -18,6 +18,7 @@ return new class extends Migration
             $table->text('details');
             $table->string('location');
             $table->text('job_description');
+            $table->string('qualifications');
             $table->timestamps();
         });
     }
