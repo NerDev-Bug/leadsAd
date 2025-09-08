@@ -40,12 +40,12 @@
                             required />
                     </div>
 
-                    <!-- Details -->
+                    <!-- Subsidiary -->
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Details<span class="text-red-500">*</span></label>
+                        <label class="block text-gray-700 font-medium mb-1">Subsidiary<span class="text-red-500">*</span></label>
                         <textarea v-model="form.details" @input="handleInput('details')"
                             class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none min-h-[80px]"
-                            placeholder="Enter job details"
+                            placeholder="Enter subsidiary"
                             required></textarea>
                     </div>
 
