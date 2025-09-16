@@ -11,13 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('access_registers', function (Blueprint $table) {
-            $table->id();
-            $table->string('username');
-            $table->string('email')->unique();
-            $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
+        Schema::table('access_registers', function (Blueprint $table) {
+            $table->rememberToken()->after('password'); // adds remember_token
         });
     }
 
@@ -26,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('access_registers');
+        Schema::table('access_registers', function (Blueprint $table) {
+            //
+        });
     }
 };

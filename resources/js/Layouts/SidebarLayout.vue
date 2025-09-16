@@ -19,8 +19,7 @@
             <nav class="flex-1">
                 <ul class="space-y-2">
                     <li>
-                        <a href="/dashboard"
-                           :class="[baseLink, isActive('/dashboard') ? activeLink : inactiveLink]">
+                        <a href="/dashboard" :class="[baseLink, isActive('/dashboard') ? activeLink : inactiveLink]">
                             <!-- Dashboard Icon -->
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="w-5 h-5">
@@ -32,8 +31,7 @@
                     </li>
 
                     <li>
-                        <a href="/products"
-                           :class="[baseLink, isActive('/products') ? activeLink : inactiveLink]">
+                        <a href="/products" :class="[baseLink, isActive('/products') ? activeLink : inactiveLink]">
                             <!-- Products Icon (Shopping Bag) -->
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="w-5 h-5">
@@ -46,8 +44,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/news"
-                           :class="[baseLink, isActive('/news') ? activeLink : inactiveLink]">
+                        <a href="/news" :class="[baseLink, isActive('/news') ? activeLink : inactiveLink]">
                             <!-- News Icon (Detailed Newspaper) -->
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="w-5 h-5">
@@ -60,8 +57,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="/careers"
-                           :class="[baseLink, isActive('/careers') ? activeLink : inactiveLink]">
+                        <a href="/careers" :class="[baseLink, isActive('/careers') ? activeLink : inactiveLink]">
                             <!-- Careers Icon -->
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
                                 stroke="currentColor" class="w-5 h-5">
@@ -69,6 +65,18 @@
                                     d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a8 8 0 00-8 8h16a8 8 0 00-8-8z" />
                             </svg>
                             Careers
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/directories"
+                            :class="[baseLink, isActive('/directories') ? activeLink : inactiveLink]">
+                            <!-- Directories Icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M3.75 6.75h16.5m-16.5 3.75h16.5m-16.5 3.75h16.5m-16.5 3.75h16.5M9 6.75v10.5M15 6.75v10.5" />
+                            </svg>
+                            Directories
                         </a>
                     </li>
                     <li>

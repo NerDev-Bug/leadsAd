@@ -9,11 +9,12 @@ return new class extends Migration {
     {
         Schema::create('directory', function (Blueprint $table) {
             $table->id();
-            $table->string('area');   
-            $table->string('region');       
-            $table->string('place');        
+            $table->string('area');
+            $table->string('region');
+            $table->string('place');
             $table->string('business_name');
-            $table->string('address');
+            $table->string('address')->nullable();
+            $table->string('contact_name');
             $table->string('contact_no');
             $table->timestamps();
         });

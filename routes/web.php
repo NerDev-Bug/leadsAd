@@ -5,6 +5,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\CareerController;
 use App\Http\Controllers\AccessRegisterController;
 use App\Http\Controllers\ArchiveNewsController;
+use App\Http\Controllers\DirectoryController;
 
 Route::get('/dashboard', function () {
     $productsCount = \App\Models\product::count();
@@ -42,6 +43,12 @@ Route::get('/careers', [CareerController::class, 'index'])->middleware('auth')->
 Route::post('/careers', [CareerController::class, 'store'])->middleware('auth');
 Route::put('/careers/{career}', [CareerController::class, 'update'])->middleware('auth')->name('careers.update');
 Route::delete('/careers/{career}', [CareerController::class, 'destroy'])->middleware('auth')->name('careers.destroy');
+
+// Directories functions
+Route::get('/directories', [DirectoryController::class, 'index'])->middleware('auth')->name('directories');
+Route::post('/directories', [DirectoryController::class, 'store'])->middleware('auth');
+Route::put('/directories/{directory}', [DirectoryController::class, 'update'])->middleware('auth')->name('directories.update');
+Route::delete('/directories/{directory}', [DirectoryController::class, 'destroy'])->middleware('auth')->name('directories.destroy');
 
 Route::post('/access-registers', [AccessRegisterController::class, 'store'])->name('access-registers.store');
 Route::post('/access-register/login', [AccessRegisterController::class, 'login'])->name('access-register.login');

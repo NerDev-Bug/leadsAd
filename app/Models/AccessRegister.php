@@ -15,4 +15,9 @@ class AccessRegister extends Authenticatable
         'email',
         'password',
     ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 }

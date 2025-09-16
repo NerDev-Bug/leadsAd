@@ -102,6 +102,7 @@ class AccessRegisterController extends Controller
         }
 
         Auth::login($user);
+        $request->session()->regenerate(); // ✅ important
 
         // Return a 204 No Content response for Inertia
         return redirect()->route('dashboard');
