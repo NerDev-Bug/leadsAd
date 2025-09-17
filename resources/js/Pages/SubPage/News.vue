@@ -243,7 +243,7 @@ watch(search, (newVal, oldVal) => {
 
             <!-- Pagination Component -->
             <div class="mt-6">
-                <Pagination v-if="pagination" :pagination="pagination" @page-changed="handlePageChanged" />
+                <Pagination v-if="pagination" :pagination="pagination" route-name="/news" @page-changed="handlePageChanged" />
             </div>
         </div>
 

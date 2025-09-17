@@ -55,6 +55,14 @@ const props = defineProps({
     pagination: {
         type: Object,
         required: true
+    },
+    routeName: {   // ✅ dynamic route
+        type: String,
+        required: true
+    },
+    extraParams: { // ✅ optional for searches/filters
+        type: Object,
+        default: () => ({})
     }
 });
 
@@ -66,39 +74,27 @@ const visiblePages = computed(() => {
 
     const current = props.pagination.current_page;
     const last = props.pagination.last_page;
-    const delta = 2; // Number of pages to show on each side of current page
+    const delta = 2;
 
     let start = Math.max(1, current - delta);
     let end = Math.min(last, current + delta);
 
-    // Always show first and last page
-    if (start > 1) {
-        start = Math.max(1, start - 1);
-    }
-    if (end < last) {
-        end = Math.min(last, end + 1);
-    }
+    if (start > 1) start = Math.max(1, start - 1);
+    if (end < last) end = Math.min(last, end + 1);
 
     const pages = [];
 
-    // Add first page if not in range
     if (start > 1) {
         pages.push(1);
-        if (start > 2) {
-            pages.push('...');
-        }
+        if (start > 2) pages.push('...');
     }
 
-    // Add pages in range
     for (let i = start; i <= end; i++) {
         pages.push(i);
     }
 
-    // Add last page if not in range
     if (end < last) {
-        if (end < last - 1) {
-            pages.push('...');
-        }
+        if (end < last - 1) pages.push('...');
         pages.push(last);
     }
 
@@ -110,8 +106,8 @@ const goToPage = (page) => {
         return;
     }
 
-    // Use Inertia router to navigate with page parameter
-    router.get('/products', { page }, {
+    // ✅ Reusable for any resource
+    router.get(props.routeName, { ...props.extraParams, page }, {
         preserveState: true,
         preserveScroll: true,
         replace: true

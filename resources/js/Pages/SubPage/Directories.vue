@@ -104,7 +104,7 @@ watch(search, (newVal) => {
                                 Area
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Region
+                                Major Island Group
                             </th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Place
@@ -175,7 +175,7 @@ watch(search, (newVal) => {
 
             <!-- Pagination Component -->
             <div class="mt-6">
-                <Pagination v-if="pagination" :pagination="pagination" @page-changed="handlePageChanged" />
+                <Pagination v-if="pagination" :pagination="pagination" route-name="/directories" @page-changed="handlePageChanged" />
             </div>
         </div>
 

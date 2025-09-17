@@ -26,7 +26,7 @@
 
                     <!-- Region -->
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Region<span
+                        <label class="block text-gray-700 font-medium mb-1">Major Island Group<span
                                 class="text-red-500">*</span></label>
                         <select v-model="form.region" @change="updateProvinces" class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white
                                    focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
@@ -119,34 +119,68 @@ const emit = defineEmits(['update:modelValue', 'submitted']);
 // Provinces grouped per Region
 const provinces = {
     Luzon: [
-        "Abra", "Apayao", "Aurora", "Bataan", "Batangas", "Benguet", "Bulacan",
-        "Cagayan", "Camarines Norte", "Camarines Sur", "Catanduanes", "Cavite",
-        "Ifugao", "Ilocos Norte", "Ilocos Sur", "Isabela", "Kalinga", "La Union",
-        "Laguna", "Mountain Province", "Nueva Ecija", "Nueva Vizcaya",
-        "Occidental Mindoro", "Oriental Mindoro", "Pampanga", "Pangasinan",
-        "Quezon", "Quirino", "Rizal", "Romblon", "Sorsogon", "Tarlac", "Zambales",
-        "Albay", "Marinduque", "Masbate", "Metro Manila", "Palawan"
-    ], // 38
+        "Abra", "Alaminos City", "Albay", "Angeles City", "Antipolo City", "Apayao",
+        "Aurora", "Baguio City", "Bataan", "Batac City", "Batangas", "Batangas City",
+        "Bayawan City", "Bayombong", "Bayugan City", "Benguet", "Biñan City",
+        "Bocaue", "Bogo City", "Bulan", "Bulacan", "Cabanatuan City", "Cabuyao City",
+        "Cagayan", "Caloocan City", "Camarines Norte", "Camarines Sur",
+        "Camalig", "Canaman", "Capas", "Carcar City", "Catanduanes", "Cavite",
+        "Cavite City", "Dagupan City", "Dasmariñas City", "Dinalupihan", "Gapan City",
+        "General Trias City", "Ifugao", "Ilocos Norte", "Ilocos Sur", "Iriga City",
+        "Isabela", "Kalinga", "La Carlota City", "La Union", "Laoag City",
+        "Laguna", "Las Piñas City", "Legazpi City", "Lipa City", "Lucena City",
+        "Mabalacat City", "Makati City", "Malabon City", "Malaybalay City",
+        "Malolos City", "Mandaluyong City", "Manila City", "Marawi City",
+        "Marikina City", "Marinduque", "Masbate", "Masbate City", "Metro Manila",
+        "Meycauayan City", "Mountain Province", "Muntinlupa City", "Naga City",
+        "Narra", "Navotas City", "Nueva Ecija", "Nueva Vizcaya", "Occidental Mindoro",
+        "Olongapo City", "Oriental Mindoro", "Ozamiz City", "Palayan City", "Palawan",
+        "Pampanga", "Pangasinan", "Parañaque City", "Pasay City", "Pasig City",
+        "Pateros", "Puerto Princesa City", "Quezon", "Quezon City", "Quirino",
+        "Rizal", "Romblon", "San Carlos City (Pangasinan)", "San Fernando City (La Union)",
+        "San Fernando City (Pampanga)", "San Jose City", "San Jose del Monte City",
+        "San Juan City", "Santiago City", "Science City of Muñoz", "Sorsogon",
+        "Sorsogon City", "Sta. Rosa City", "Taguig City", "Tagaytay City", "Tabaco City",
+        "Tacloban City", "Talisay City", "Tanauan City", "Tarlac", "Tarlac City",
+        "Tayabas City", "Trece Martires City", "Tuguegarao City", "Urdaneta City",
+        "Valenzuela City", "Vigan City", "Zambales"
+    ],
+
 
     Visayas: [
-        "Aklan", "Antique", "Biliran", "Bohol", "Capiz", "Cebu", "Eastern Samar",
-        "Guimaras", "Iloilo", "Leyte", "Negros Occidental", "Negros Oriental",
-        "Northern Samar", "Samar (Western Samar)", "Southern Leyte",
-        "Dinagat Islands", "Siquijor", "Camotes Islands", "Bantayan Islands",
-        "Biliran Islands", "Guimaras Islands", "Capul Island", "Biliran Province",
-        "Carles Islands", "Kalibo Province", "Ormoc Province", "Tacloban Province"
-    ], // 27
+        "Aklan", "Antique", "Bacolod City", "Bais City", "Bantayan Island", "Barugo",
+        "Bayawan City", "Baybay City", "Biliran", "Borongan City", "Bogo City",
+        "Bohol", "Calbayog City", "Canlaon City", "Capiz", "Carcar City",
+        "Catbalogan City", "Cebu", "Cebu City", "Danao City", "Dumaguete City",
+        "Eastern Samar", "Escalante City", "Guihulngan City", "Guimaras",
+        "Himamaylan City", "Iloilo", "Iloilo City", "Kabankalan City", "La Carlota City",
+        "Lapu-Lapu City", "Leyte", "Maasin City", "Mandaue City", "Negros Occidental",
+        "Negros Oriental", "Naga City (Cebu)", "Northern Samar", "Ormoc City",
+        "Passi City", "Roxas City", "Sagay City", "Samal", "Samar (Western Samar)",
+        "San Carlos City (Negros Occidental)", "Silay City", "Sipalay City",
+        "Siquijor", "Southern Leyte", "Tagbilaran City", "Tacloban City",
+        "Talisay City (Cebu)", "Talisay City (Negros Occidental)", "Tanjay City",
+        "Toledo City", "Victorias City"
+    ],
+
 
     Mindanao: [
-        "Agusan del Norte", "Agusan del Sur", "Basilan", "Bukidnon", "Camiguin",
-        "Compostela Valley (Davao de Oro)", "Davao del Norte", "Davao del Sur",
-        "Davao Occidental", "Davao Oriental", "Dinagat Islands", "Lanao del Norte",
-        "Lanao del Sur", "Maguindanao del Norte", "Maguindanao del Sur",
-        "Misamis Occidental", "Misamis Oriental", "North Cotabato",
-        "Sarangani", "South Cotabato", "Sultan Kudarat", "Sulu", "Surigao del Norte",
-        "Surigao del Sur", "Tawi-Tawi", "Zamboanga del Norte", "Zamboanga del Sur",
+        "Agusan del Norte", "Agusan del Sur", "Basilan", "Bayugan City", "Bislig City",
+        "Bukidnon", "Butuan City", "Cabadbaran City", "Cagayan de Oro City", "Camiguin",
+        "Cotabato City", "Dapitan City", "Davao City", "Davao de Oro", "Davao del Norte",
+        "Davao del Sur", "Davao Occidental", "Davao Oriental", "Dipolog City",
+        "Dinagat Islands", "Digos City", "El Salvador City", "Gingoog City",
+        "General Santos City", "Iligan City", "Isabela City", "Kidapawan City",
+        "Koronadal City", "Lanao del Norte", "Lanao del Sur", "Malaybalay City",
+        "Maguindanao del Norte", "Maguindanao del Sur", "Marawi City", "Mati City",
+        "Misamis Occidental", "Misamis Oriental", "North Cotabato", "Oroquieta City",
+        "Ozamiz City", "Pagadian City", "Panabo City", "Samal City", "Sarangani",
+        "South Cotabato", "Sultan Kudarat", "Surigao City", "Surigao del Norte",
+        "Surigao del Sur", "Tagum City", "Tacurong City", "Tangub City", "Tawi-Tawi",
+        "Valencia City", "Zamboanga City", "Zamboanga del Norte", "Zamboanga del Sur",
         "Zamboanga Sibugay"
-    ] // 28
+    ],
+
 };
 
 const form = ref({
@@ -185,6 +219,12 @@ const resetForm = () => {
 
 const populateForm = (directory) => {
     if (!directory) return;
+
+    let contactNo = directory.contact_no || '';
+    if (contactNo.startsWith('+63')) {
+        contactNo = '0' + contactNo.slice(3);
+    }
+
     form.value = {
         area: directory.area || '',
         region: directory.region || '',
@@ -192,7 +232,7 @@ const populateForm = (directory) => {
         business_name: directory.business_name || '',
         address: directory.address || '',
         contact_name: directory.contact_name || '',
-        contact_no: directory.contact_no || '',
+        contact_no: contactNo,
         processing: false
     };
     updateProvinces();
@@ -213,12 +253,12 @@ watch(() => props.modelValue, (val) => {
 async function submitForm() {
     form.value.processing = true;
 
-    // format contact_no with +63
     let formattedContact = form.value.contact_no;
-    if (formattedContact.startsWith("0")) {
-        formattedContact = "+63" + formattedContact.slice(1);
-    } else if (!formattedContact.startsWith("+63")) {
-        formattedContact = "+63" + formattedContact;
+
+    if (formattedContact.startsWith('0')) {
+        formattedContact = '+63' + formattedContact.slice(1);
+    } else if (!formattedContact.startsWith('+63')) {
+        formattedContact = '+63' + formattedContact;
     }
 
     const payload = {

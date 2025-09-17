@@ -14,7 +14,7 @@ class NewsController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = 20;
+        $perPage = 15;
         $query = News::orderBy('published_at', 'desc');
 
         // Search logic

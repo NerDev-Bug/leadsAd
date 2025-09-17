@@ -12,7 +12,7 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = 20;
+        $perPage = 15;
         $query = product::orderBy('created_at', 'desc');
 
         // Search logic
