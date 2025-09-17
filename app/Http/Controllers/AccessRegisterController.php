@@ -51,7 +51,8 @@ class AccessRegisterController extends Controller
             'password' => bcrypt($validated['password']),
         ]);
 
-        return redirect()->back()->with('success', 'Registration successful!');
+        // Instead of redirecting back, return a success response for Inertia
+    return back()->with('success', 'Registration successful!');
     }
 
     /**

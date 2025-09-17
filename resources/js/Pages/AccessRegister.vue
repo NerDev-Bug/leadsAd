@@ -1,5 +1,7 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
+import Swal from 'sweetalert2';
+import { router } from '@inertiajs/vue3';
 
 const form = useForm({
   name: '',
@@ -18,9 +20,21 @@ function onNameInput(event) {
 }
 
 function submit() {
-  form.post(route('access-registers.store'));
+  form.post(route('access-registers.store'), {
+    onSuccess: () => {
+      Swal.fire({
+        icon: 'success',
+        title: 'Account Created!',
+        text: 'Your registration was successful.',
+        confirmButtonText: 'OK'
+      }).then(() => {
+        router.visit('/'); // Redirect to login after clicking OK
+      });
+    }
+  });
 }
 </script>
+
 
 <template>
   <div
