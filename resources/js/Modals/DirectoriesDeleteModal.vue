@@ -21,10 +21,10 @@
                         <span class="font-semibold">Business Name:</span> {{ directory.business_name }}
                     </div>
                     <div>
-                        <span class="font-semibold">Place:</span> {{ directory.place }}
+                        <span class="font-semibold">Provinces/Cities:</span> {{ directory.place }}
                     </div>
                     <div>
-                        <span class="font-semibold">Region:</span> {{ directory.region }}
+                        <span class="font-semibold">Major Island Group:</span> {{ directory.region }}
                     </div>
                     <div>
                         <span class="font-semibold">Contact Name:</span> {{ directory.contact_name }}

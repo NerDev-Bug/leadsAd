@@ -28,7 +28,7 @@
                                 class="text-red-500">*</span></label>
                         <select v-model="form.region" @change="updateProvinces" class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white
                                    focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                            <option value="">Select Region</option>
+                            <option value="">Select Major Island</option>
                             <option value="Luzon">Luzon</option>
                             <option value="Visayas">Visayas</option>
                             <option value="Mindanao">Mindanao</option>
@@ -37,11 +37,11 @@
 
                     <!-- Place (Provinces) -->
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Province<span
+                        <label class="block text-gray-700 font-medium mb-1">Provinces/Cities<span
                                 class="text-red-500">*</span></label>
                         <select v-model="form.place" class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white
                                    focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                            <option value="">Select Province</option>
+                            <option value="">Select Provinces/Cities</option>
                             <option v-for="province in availableProvinces" :key="province" :value="province">
                                 {{ province }}
                             </option>
