@@ -20,5 +20,14 @@ return Application::configure(basePath: dirname(__DIR__))
         //
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        // Custom 404 handler
+        $exceptions->render(function (NotFoundHttpException $e, $request) {
+            if ($request->wantsJson()) {
+                return response()->json(['message' => 'Not Found.'], 404);
+            }
+
+            return Inertia::render('Errors/NotFound')
+                ->toResponse($request)
+                ->setStatusCode(404);
+        });
     })->create();

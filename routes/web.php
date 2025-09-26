@@ -26,6 +26,10 @@ Route::get('/', function () {
     return Inertia::render('LoginForm');
 })->middleware('guest')->name('login');
 
+Route::fallback(function () {
+    return Inertia::render('Errors/NotFound');
+});
+
 //Products functions
 Route::get('/products', [\App\Http\Controllers\ProductController::class, 'index'])->middleware('auth')->name('products');
 Route::post('/products', [\App\Http\Controllers\ProductController::class, 'store'])->middleware('auth');
