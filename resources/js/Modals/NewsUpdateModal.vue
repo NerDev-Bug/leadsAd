@@ -1,38 +1,38 @@
 <template>
     <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div
-            class="relative w-full max-w-2xl mx-2 sm:mx-4 md:mx-0 bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 max-h-[90vh] flex flex-col overflow-y-auto"
-            @click.stop
-        >
+        <div class="relative w-full max-w-2xl mx-2 sm:mx-4 md:mx-0 bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 max-h-[90vh] flex flex-col overflow-y-auto"
+            @click.stop>
             <!-- Close Button -->
             <button
                 class="absolute top-3 right-3 text-gray-700 text-3xl w-10 h-10 flex items-center justify-center rounded-full hover:text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                @click="$emit('update:modelValue', false)"
-                aria-label="Close modal"
-            >
+                @click="$emit('update:modelValue', false)" aria-label="Close modal">
                 &times;
             </button>
+
             <!-- Modal Title -->
             <h2 class="text-2xl sm:text-3xl font-bold text-center mb-6 text-gray-800">Update News Article</h2>
+
             <!-- News Form -->
             <form @submit.prevent="submitForm" class="flex-1 flex flex-col justify-between">
                 <div class="grid grid-cols-1 gap-4">
+                    <!-- Title -->
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Title<span class="text-red-500">*</span></label>
+                        <label class="block text-gray-700 font-medium mb-1">Title<span
+                                class="text-red-500">*</span></label>
                         <input v-model="form.title" type="text"
                             class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            placeholder="Enter news title"
-                            @input="capitalizeFirstLetter('title')"
-                            required />
+                            placeholder="Enter news title" @input="capitalizeFirstLetter('title')" required />
                     </div>
+
+                    <!-- Content -->
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Content<span class="text-red-500">*</span></label>
+                        <label class="block text-gray-700 font-medium mb-1">Content<span
+                                class="text-red-500">*</span></label>
                         <div v-for="(content, idx) in form.contents" :key="idx" class="mb-2">
                             <textarea v-model="form.contents[idx]"
                                 class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none min-h-[80px]"
                                 :placeholder="`Enter content section ${idx + 1}...`"
-                                @input="capitalizeFirstLetterContent(idx)"
-                                required></textarea>
+                                @input="capitalizeFirstLetterContent(idx)" required></textarea>
                             <div class="flex justify-between items-center mt-1">
                                 <button type="button" @click="removeContent(idx)" v-if="form.contents.length > 1"
                                     class="text-red-500 hover:text-red-700 text-sm font-semibold focus:outline-none focus:underline">
@@ -46,55 +46,53 @@
                             + Add Content Section
                         </button>
                     </div>
+
+                    <!-- Published Date -->
                     <div>
-                        <label class="block text-gray-700 font-medium mb-1">Published Date<span class="text-red-500">*</span></label>
-                        <VueDatePicker
-                            v-model="form.published_at"
-                            model-type="format"
-                            format="yyyy-MM-dd"
-                            :enable-time-picker="false"
-                            :clearable="true"
-                            :auto-apply="true"
-                            :teleport="true"
+                        <label class="block text-gray-700 font-medium mb-1">Published Date<span
+                                class="text-red-500">*</span></label>
+                        <VueDatePicker v-model="form.published_at" model-type="format" format="yyyy-MM-dd"
+                            :enable-time-picker="false" :clearable="true" :auto-apply="true" :teleport="true"
                             input-class-name="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            placeholder="Select date"
-                        />
+                            placeholder="Select date" />
                     </div>
 
-                    <!-- Featured Image Section -->
+                    <!-- Featured Image -->
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Featured Image</label>
                         <div v-if="form.currentFeaturedImage" class="mb-2">
                             <p class="text-sm text-gray-600 mb-1">Current Image:</p>
-                            <img :src="`/news_image/${form.currentFeaturedImage.replace('news/', '')}`" alt="Current Featured Image" class="h-24 w-32 object-cover rounded border" />
+                            <img :src="`/news_image/${form.currentFeaturedImage.replace('news/', '')}`"
+                                alt="Current Featured Image" class="h-24 w-32 object-cover rounded border" />
                         </div>
                         <input type="file" @change="onFileChange"
                             :class="['w-full border rounded-lg p-3 bg-white focus:outline-none', imageError ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500']"
                             accept=".jpg,.jpeg,.png,.webp" />
-                        <p class="text-xs text-gray-500 mt-1">Leave empty to keep current image</p>
+                        <p class="text-xs text-gray-500 mt-1">Leave empty to keep current image(Recommended image size: 1200x630px with 10MB)</p>
                         <p v-if="imageError" class="text-red-500 text-sm mt-1">{{ imageError }}</p>
                     </div>
 
-                    <!-- Featured Image 2 Section -->
+                    <!-- Featured Image 2 (now single file) -->
                     <div>
                         <label class="block text-gray-700 font-medium mb-1">Article Image</label>
-                        <div v-if="form.currentFeaturedImage2" class="flex flex-wrap gap-2 mb-2">
-                            <div v-for="(img, idx) in form.currentFeaturedImage2.split(',')" :key="idx" class="w-16 h-16 bg-gray-100 rounded overflow-hidden flex items-center justify-center border">
-                                <img v-if="img.trim()" :src="`/news_image/${img.trim().replace('news/', '')}`" alt="Current Featured Image 2" class="object-cover w-full h-full" />
-                            </div>
+                        <div v-if="form.currentFeaturedImage2" class="mb-2">
+                            <p class="text-sm text-gray-600 mb-1">Current Image:</p>
+                            <img :src="`/news_image/${form.currentFeaturedImage2.replace('news/', '')}`"
+                                alt="Current Featured Image 2" class="h-24 w-32 object-cover rounded border" />
                         </div>
-                        <input type="file" @change="onFileChange2" multiple
+                        <input type="file" @change="onFileChange2"
                             :class="['w-full border rounded-lg p-3 bg-white focus:outline-none', image2Error ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500']"
                             accept=".jpg,.jpeg,.png,.webp" />
-                        <div class="flex flex-wrap gap-2 mt-2">
-                            <div v-for="(img, idx) in featuredImages2Preview" :key="'new-'+idx" class="w-16 h-16 bg-gray-100 rounded overflow-hidden flex items-center justify-center border">
-                                <img v-if="img" :src="img" class="object-cover w-full h-full" />
-                            </div>
+                        <div v-if="featuredImage2Preview" class="mt-2">
+                            <img :src="featuredImage2Preview" alt="Preview"
+                                class="w-24 h-24 object-cover rounded border" />
                         </div>
-                        <p class="text-xs text-gray-500 mt-1">Leave empty to keep current images.</p>
+                        <p class="text-xs text-gray-500 mt-1">Leave empty to keep current image(Recommended image size: 1200x630px with 10MB)</p>
                         <p v-if="image2Error" class="text-red-500 text-sm mt-1">{{ image2Error }}</p>
                     </div>
                 </div>
+
+                <!-- Submit Button -->
                 <div class="mt-8">
                     <button type="submit"
                         class="w-full bg-blue-600 text-white text-lg font-semibold py-3 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none transition disabled:opacity-80 disabled:cursor-not-allowed"
@@ -109,20 +107,20 @@
 </template>
 
 <script setup>
-import { ref, watch, defineProps, defineEmits } from 'vue';
-import { router } from '@inertiajs/vue3';
-import Swal from 'sweetalert2';
-import VueDatePicker from '@vuepic/vue-datepicker';
+import { ref, watch, defineProps, defineEmits } from 'vue'
+import { router } from '@inertiajs/vue3'
+import Swal from 'sweetalert2'
+import VueDatePicker from '@vuepic/vue-datepicker'
 
 const props = defineProps({
     modelValue: Boolean,
     news: {
         type: Object,
-        default: null
-    }
-});
+        default: null,
+    },
+})
 
-const emit = defineEmits(['update:modelValue', 'submitted']);
+const emit = defineEmits(['update:modelValue', 'submitted'])
 
 const form = ref({
     title: '',
@@ -130,15 +128,15 @@ const form = ref({
     published_at: '',
     featured_image: null,
     currentFeaturedImage: '',
-    featured_image_2: [],
+    featured_image_2: null,
     currentFeaturedImage2: '',
-    processing: false
-});
+    processing: false,
+})
 
-// Error messages for file input
-const imageError = ref('');
-const image2Error = ref('');
-const featuredImages2Preview = ref([]);
+// Errors & Preview
+const imageError = ref('')
+const image2Error = ref('')
+const featuredImage2Preview = ref(null)
 
 const resetForm = () => {
     form.value = {
@@ -147,185 +145,134 @@ const resetForm = () => {
         published_at: '',
         featured_image: null,
         currentFeaturedImage: '',
-        featured_image_2: [],
+        featured_image_2: null,
         currentFeaturedImage2: '',
-        processing: false
-    };
-    imageError.value = '';
-    image2Error.value = '';
-    featuredImages2Preview.value = [];
-};
+        processing: false,
+    }
+    imageError.value = ''
+    image2Error.value = ''
+    featuredImage2Preview.value = null
+}
 
 const populateForm = (newsItem) => {
-    if (!newsItem) return;
+    if (!newsItem) return
 
-    // Parse existing content by colons and trim whitespace
-    let contents = [''];
+    let contents = ['']
     if (newsItem.content) {
-        contents = newsItem.content.split(': ').map(content => content.trim()).filter(content => content !== '');
+        contents = newsItem.content.split(': ').map((c) => c.trim()).filter((c) => c !== '')
     }
-
-    // If no content sections found, start with one empty section
-    if (contents.length === 0) {
-        contents = [''];
-    }
+    if (contents.length === 0) contents = ['']
 
     form.value = {
         title: newsItem.title || '',
-        contents: contents,
-        published_at: newsItem.published_at ? new Date(newsItem.published_at).toISOString().slice(0, 10) : '',
+        contents,
+        published_at: newsItem.published_at
+            ? new Date(newsItem.published_at).toISOString().slice(0, 10)
+            : '',
         featured_image: null,
         currentFeaturedImage: newsItem.featured_image || '',
-        featured_image_2: newsItem.featured_image_2 ? newsItem.featured_image_2.split(',') : [],
+        featured_image_2: null,
         currentFeaturedImage2: newsItem.featured_image_2 || '',
-        processing: false
-    };
-};
-
-// Watch for news changes and populate form
-watch(() => props.news, (newNews) => {
-    if (newNews) {
-        populateForm(newNews);
+        processing: false,
     }
-}, { immediate: true });
+}
 
-// Watch for modal state changes
-watch(() => props.modelValue, (val) => {
-    if (!val) {
-        resetForm();
-    } else if (props.news) {
-        populateForm(props.news);
-    }
-});
+// Watchers
+watch(() => props.news, (n) => n && populateForm(n), { immediate: true })
+watch(() => props.modelValue, (val) => !val && resetForm())
 
 function capitalizeFirstLetter(field) {
-    if (form.value[field] && form.value[field].length > 0) {
-        form.value[field] = form.value[field].charAt(0).toUpperCase() + form.value[field].slice(1);
-    }
+    const val = form.value[field]
+    if (val && val.length > 0) form.value[field] = val.charAt(0).toUpperCase() + val.slice(1)
 }
-
 function capitalizeFirstLetterContent(idx) {
-    if (form.value.contents[idx] && form.value.contents[idx].length > 0) {
-        form.value.contents[idx] = form.value.contents[idx].charAt(0).toUpperCase() + form.value.contents[idx].slice(1);
-    }
+    const val = form.value.contents[idx]
+    if (val && val.length > 0)
+        form.value.contents[idx] = val.charAt(0).toUpperCase() + val.slice(1)
 }
-
 function addContent() {
-    form.value.contents.push('');
+    form.value.contents.push('')
 }
-
 function removeContent(idx) {
-    if (form.value.contents.length > 1) {
-        form.value.contents.splice(idx, 1);
-    }
+    if (form.value.contents.length > 1) form.value.contents.splice(idx, 1)
 }
 
-function onFileChange(event) {
-    const file = event.target.files[0];
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-    const maxSize = 5 * 1024 * 1024; // 5MB
-
-    if (file) {
-        if (!allowedTypes.includes(file.type)) {
-            imageError.value = 'Only JPEG, JPG, PNG, or WebP files are allowed.';
-            form.value.featured_image = null;
-            event.target.value = '';
-            return;
-        }
-
-        if (file.size > maxSize) {
-            imageError.value = 'File size must be less than 5MB.';
-            form.value.featured_image = null;
-            event.target.value = '';
-            return;
-        }
-
-        form.value.featured_image = file;
-        imageError.value = '';
-    }
+// Featured Image 1
+function onFileChange(e) {
+    const file = e.target.files[0]
+    validateFile(file, imageError, (valid) => (form.value.featured_image = valid))
 }
 
-function onFileChange2(event) {
-    const files = Array.from(event.target.files);
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-    const maxSize = 5 * 1024 * 1024; // 5MB
-    let error = '';
-    let previews = [];
-    const validFiles = [];
-    for (const file of files) {
-        if (!allowedTypes.includes(file.type)) {
-            error = 'Only JPEG, JPG, PNG, or WebP files are allowed.';
-            continue;
-        }
-        if (file.size > maxSize) {
-            error = 'File size must be less than 5MB.';
-            continue;
-        }
-        validFiles.push(file);
-        previews.push(URL.createObjectURL(file));
+// Featured Image 2 (single)
+function onFileChange2(e) {
+    const file = e.target.files[0]
+    validateFile(file, image2Error, (valid) => {
+        form.value.featured_image_2 = valid
+        featuredImage2Preview.value = valid ? URL.createObjectURL(valid) : null
+    })
+}
+
+function validateFile(file, errorRef, setFile) {
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp']
+    const maxSize = 10 * 1024 * 1024
+    if (!file) {
+        setFile(null)
+        errorRef.value = ''
+        return
     }
-    form.value.featured_image_2 = validFiles;
-    featuredImages2Preview.value = previews;
-    image2Error.value = error;
+    if (!allowedTypes.includes(file.type)) {
+        errorRef.value = 'Only JPEG, JPG, PNG, or WebP files are allowed.'
+        setFile(null)
+        return
+    }
+    if (file.size > maxSize) {
+        errorRef.value = 'File size must be less than 10MB.'
+        setFile(null)
+        return
+    }
+    errorRef.value = ''
+    setFile(file)
 }
 
 async function submitForm() {
-    if (!props.news || !props.news.id) {
-        Swal.fire({
-            title: 'Error!',
-            text: 'No news article selected for update.',
-            icon: 'error',
-            confirmButtonColor: '#d33',
-        });
-        return;
+    if (!props.news?.id) {
+        Swal.fire('Error!', 'No news article selected for update.', 'error')
+        return
     }
 
-    form.value.processing = true;
+    form.value.processing = true
 
-    // Combine content sections with colons
-    const combinedContent = form.value.contents.filter(content => content.trim() !== '').join(': ');
+    const combinedContent = form.value.contents.filter((c) => c.trim() !== '').join(': ')
+    const formData = new FormData()
+    formData.append('_method', 'PUT')
+    formData.append('title', form.value.title)
+    formData.append('content', combinedContent)
+    formData.append('published_at', form.value.published_at)
 
-    const formData = new FormData();
-    formData.append('_method', 'PUT'); // Laravel method spoofing for PUT request
-    formData.append('title', form.value.title);
-    formData.append('content', combinedContent);
-    formData.append('published_at', form.value.published_at);
-    if (form.value.featured_image) formData.append('featured_image', form.value.featured_image);
-    // Append all featured_image_2 files and store their names as comma-separated string
-    let image2Names = [];
-    if (form.value.featured_image_2 && form.value.featured_image_2.length) {
-        form.value.featured_image_2.forEach((file, idx) => {
-            formData.append('featured_image_2[]', file);
-            image2Names.push(file.name);
-        });
-        formData.append('featured_image_2_names', image2Names.join(','));
+    if (form.value.featured_image)
+        formData.append('featured_image', form.value.featured_image)
+    if (form.value.featured_image_2)
+        formData.append('featured_image_2', form.value.featured_image_2)
+
+    try {
+        await router.post(`/news/${props.news.id}`, formData, {
+            forceFormData: true,
+            onSuccess: () => {
+                emit('update:modelValue', false)
+                resetForm()
+                Swal.fire('Success!', 'News article updated successfully!', 'success').then(() =>
+                    router.visit('/news')
+                )
+            },
+            onError: (errors) => {
+                const msgs = Object.values(errors).flat().join('\n')
+                Swal.fire('Validation Error!', msgs || 'Please check your input fields.', 'warning')
+            },
+            onFinish: () => (form.value.processing = false),
+        })
+    } catch (e) {
+        Swal.fire('Error!', 'Something went wrong while updating the article.', 'error')
+        form.value.processing = false
     }
-
-    router.post(`/news/${props.news.id}`, formData, {
-        forceFormData: true,
-        onSuccess: () => {
-            emit('update:modelValue', false);
-            resetForm();
-            Swal.fire({
-                title: 'Success!',
-                text: 'News article updated successfully!',
-                icon: 'success',
-                confirmButtonColor: '#3085d6',
-            }).then(() => {
-                router.visit('/news');
-            });
-        },
-        onError: (errors) => {
-            Swal.fire({
-                title: 'Error!',
-                text: 'Failed to update news article. Please check your input.',
-                icon: 'error',
-                confirmButtonColor: '#d33',
-            });
-        },
-        onFinish: () => {
-            form.value.processing = false;
-        }
-    });
 }
 </script>

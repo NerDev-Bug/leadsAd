@@ -64,11 +64,11 @@ class NewsController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'published_at' => 'required|date',
-            'featured_image' => 'nullable|file|image|max:5120', // 5MB max
-            'featured_image_2.*' => 'nullable|file|image|max:5120', // Multiple images
+            'featured_image' => 'nullable|file|image|max:10240', // 10MB max
+            'featured_image_2' => 'nullable|file|image|max:10240', // 10MB max
         ]);
 
-        // Handle featured image uploads
+        // Handle featured_image (single)
         if ($request->hasFile('featured_image')) {
             $file = $request->file('featured_image');
             $filename = uniqid() . '_' . $file->getClientOriginalName();
@@ -76,22 +76,19 @@ class NewsController extends Controller
             $validated['featured_image'] = 'news/' . $filename;
         }
 
-        // Handle featured_image_2 (multiple files)
-        $image2Paths = [];
+        // Handle featured_image_2 (single)
         if ($request->hasFile('featured_image_2')) {
-            foreach ($request->file('featured_image_2') as $file) {
-                $filename = uniqid() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('news_image'), $filename);
-                $image2Paths[] = 'news/' . $filename;
-            }
-            $validated['featured_image_2'] = implode(',', $image2Paths);
+            $file = $request->file('featured_image_2');
+            $filename = uniqid() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('news_image'), $filename);
+            $validated['featured_image_2'] = 'news/' . $filename;
         }
 
-        $news = News::create($validated);
+        News::create($validated);
 
-        // Redirect to news page with a flash message
         return redirect('/news')->with('success', 'News article added successfully!');
     }
+
 
     /**
      * Display the specified resource.
@@ -118,44 +115,43 @@ class NewsController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'published_at' => 'required|date',
-            'featured_image' => 'nullable|file|image|max:5120', // 5MB max
-            'featured_image_2.*' => 'nullable|file|image|max:5120', // Multiple images
+            'featured_image' => 'nullable|file|image|max:10240',   // 10MB max
+            'featured_image_2' => 'nullable|file|image|max:10240', // 10MB max
         ]);
 
         // Handle featured_image (single)
         if ($request->hasFile('featured_image')) {
+            // Delete old image if exists
             if ($news->featured_image) {
                 $filename = str_replace('news/', '', $news->featured_image);
                 @unlink(public_path('news_image/' . $filename));
             }
+
             $file = $request->file('featured_image');
             $filename = uniqid() . '_' . $file->getClientOriginalName();
             $file->move(public_path('news_image'), $filename);
             $validated['featured_image'] = 'news/' . $filename;
         }
 
-        // Handle featured_image_2 (multiple)
+        // Handle featured_image_2 (now single)
         if ($request->hasFile('featured_image_2')) {
-            // Delete old images if you want to clean up
+            // Delete old image if exists
             if ($news->featured_image_2) {
-                foreach (explode(',', $news->featured_image_2) as $oldImage) {
-                    $filename = str_replace('news/', '', $oldImage);
-                    @unlink(public_path('news_image/' . $filename));
-                }
+                $filename = str_replace('news/', '', $news->featured_image_2);
+                @unlink(public_path('news_image/' . $filename));
             }
-            $image2Paths = [];
-            foreach ($request->file('featured_image_2') as $file) {
-                $filename = uniqid() . '_' . $file->getClientOriginalName();
-                $file->move(public_path('news_image'), $filename);
-                $image2Paths[] = 'news/' . $filename;
-            }
-            $validated['featured_image_2'] = implode(',', $image2Paths);
+
+            $file2 = $request->file('featured_image_2');
+            $filename2 = uniqid() . '_' . $file2->getClientOriginalName();
+            $file2->move(public_path('news_image'), $filename2);
+            $validated['featured_image_2'] = 'news/' . $filename2;
         }
 
         $news->update($validated);
 
         return redirect('/news')->with('success', 'News article updated successfully!');
     }
+
 
     /**
      * Remove the specified resource from storage.
