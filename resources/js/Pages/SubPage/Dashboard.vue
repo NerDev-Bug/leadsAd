@@ -1,13 +1,26 @@
 <script setup>
 import SidebarLayout from '@/Layouts/SidebarLayout.vue';
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 
 const page = usePage();
 const productsCount = computed(() => page.props.productsCount ?? 0);
 const newsCount = computed(() => page.props.newsCount ?? 0);
 const careersCount = computed(() => page.props.careersCount ?? 0);
-const viewersCount = computed(() => page.props.viewersCount ?? 0);
+
+const visitorStats = ref({
+    total_visits: 0,
+    unique_visitors: 0,
+});
+
+onMounted(() => {
+    // change this URL if you're going to deploy to production(https://leadsagri.com/api/visitor-stats) or use the same URL for development(http://127.0.0.1:8000/api/visitor-stats)
+    fetch('http://127.0.0.1:8000/api/visitor-stats')
+        .then(res => res.json())
+        .then(data => {
+            visitorStats.value = data;
+        });
+});
 </script>
 
 <template>
@@ -50,18 +63,28 @@ const viewersCount = computed(() => page.props.viewersCount ?? 0);
                     <div class="text-4xl font-extrabold text-yellow-700">{{ careersCount }}</div>
                     <div class="text-lg text-gray-600 mt-2">Total Careers</div>
                 </div>
-                <!-- Viewers Card -->
+                <!-- Visitor Stats Cards -->
                 <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center justify-center transition hover:shadow-lg">
                     <div class="flex items-center justify-center w-16 h-16 rounded-full bg-purple-100 mb-4">
                         <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+                    </div>
+                    <div class="text-4xl font-extrabold text-purple-700">{{ visitorStats.total_visits }}</div>
+                    <div class="text-lg text-gray-600 mt-2">Total Viewed</div>
+                </div>
+                <div class="bg-white rounded-xl shadow p-6 flex flex-col items-center justify-center transition hover:shadow-lg">
+                    <div class="flex items-center justify-center w-16 h-16 rounded-full bg-indigo-100 mb-4">
+                        <svg class="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M17 21v-2a4 4 0 00-4-4H7a4 4 0 00-4 4v2" />
                             <circle cx="9" cy="7" r="4" />
                             <path d="M23 21v-2a4 4 0 00-3-3.87" />
                             <path d="M16 3.13a4 4 0 010 7.75" />
                         </svg>
                     </div>
-                    <div class="text-4xl font-extrabold text-purple-700">{{ viewersCount }}</div>
-                    <div class="text-lg text-gray-600 mt-2">Total Viewers</div>
+                    <div class="text-4xl font-extrabold text-indigo-700">{{ visitorStats.unique_visitors }}</div>
+                    <div class="text-lg text-gray-600 mt-2">Visitors</div>
                 </div>
             </div>
         </div>
