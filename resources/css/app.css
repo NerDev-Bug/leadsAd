@@ -1,3 +1,234 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .admin-page-title {
+        @apply text-2xl font-bold text-slate-800;
+    }
+
+    .admin-page-subtitle {
+        @apply mt-1 text-sm text-slate-500;
+    }
+
+    .admin-input {
+        @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 shadow-sm transition placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 sm:w-64;
+    }
+
+    .admin-btn-primary {
+        @apply inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 hover:shadow-md;
+    }
+
+    .admin-btn-secondary {
+        @apply inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50;
+    }
+
+    .admin-table-wrap {
+        @apply overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-card ring-1 ring-slate-900/5;
+    }
+
+    .admin-table {
+        @apply min-w-full;
+    }
+
+    .admin-table-head {
+        @apply bg-gradient-to-r from-slate-50 via-emerald-50/40 to-slate-50 border-b-2 border-brand-600/20;
+    }
+
+    .admin-table-th {
+        @apply px-5 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-slate-500 first:pl-6 last:pr-6;
+    }
+
+    .admin-table-body {
+        @apply divide-y divide-slate-100 bg-white;
+    }
+
+    .admin-table-row {
+        @apply border-l-[3px] border-l-transparent transition-all duration-200 even:bg-slate-50/30 hover:border-l-brand-500 hover:bg-brand-50/40;
+    }
+
+    .admin-table-td {
+        @apply px-5 py-4 text-sm text-slate-700 first:pl-6 last:pr-6;
+    }
+
+    .admin-table-td-primary {
+        @apply font-medium text-slate-800;
+    }
+
+    .admin-table-td-action {
+        @apply px-5 py-4 text-center last:pr-6;
+    }
+
+    .admin-table-empty {
+        @apply bg-slate-50/50;
+    }
+
+    .admin-table-footer {
+        @apply mt-4 flex flex-col gap-3 rounded-xl border border-slate-200/80 bg-white px-5 py-4 shadow-sm sm:flex-row sm:items-center sm:justify-between;
+    }
+
+    .admin-action-btn {
+        @apply inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition-all duration-200;
+    }
+
+    .admin-action-btn-edit {
+        @apply border border-blue-200/80 bg-blue-50 text-blue-700 hover:border-blue-300 hover:bg-blue-100 hover:shadow-sm;
+    }
+
+    .admin-action-btn-delete {
+        @apply border border-red-200/80 bg-red-50 text-red-600 hover:border-red-300 hover:bg-red-100 hover:shadow-sm;
+    }
+
+    .admin-table-image {
+        @apply h-12 w-12 rounded-xl object-cover shadow-sm ring-2 ring-white;
+    }
+
+    .admin-table-image-placeholder {
+        @apply flex h-12 w-12 items-center justify-center rounded-xl bg-slate-100 text-[10px] font-medium text-slate-400 ring-1 ring-slate-200;
+    }
+
+    /* Modal */
+    .admin-modal-overlay {
+        @apply fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-sm;
+    }
+
+    .admin-modal-panel {
+        @apply relative flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-2xl ring-1 ring-slate-900/5;
+    }
+
+    .admin-modal-header {
+        @apply flex items-start justify-between gap-4 border-b border-slate-100 bg-gradient-to-r from-slate-50 via-emerald-50/50 to-slate-50 px-5 py-4 sm:px-6;
+    }
+
+    .admin-modal-icon {
+        @apply flex h-10 w-10 shrink-0 items-center justify-center rounded-xl shadow-sm;
+    }
+
+    .admin-modal-icon-add {
+        @apply bg-brand-600 text-white shadow-brand-600/25;
+    }
+
+    .admin-modal-icon-edit {
+        @apply bg-blue-600 text-white shadow-blue-600/25;
+    }
+
+    .admin-modal-icon-archive {
+        @apply bg-amber-500 text-white shadow-amber-500/25;
+    }
+
+    .admin-modal-title {
+        @apply text-lg font-bold text-slate-800 sm:text-xl;
+    }
+
+    .admin-modal-subtitle {
+        @apply mt-0.5 text-sm text-slate-500;
+    }
+
+    .admin-modal-close {
+        @apply flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-600;
+    }
+
+    .admin-modal-body {
+        @apply flex-1 overflow-y-auto px-5 py-5 sm:px-6;
+    }
+
+    .admin-modal-confirm-body {
+        @apply px-6 py-6;
+    }
+
+    .admin-modal-danger-icon {
+        @apply mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 ring-4 ring-red-100;
+    }
+
+    .admin-modal-logout-icon {
+        @apply mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 ring-4 ring-amber-100;
+    }
+
+    .admin-modal-confirm-message {
+        @apply mb-5 text-center text-sm leading-relaxed text-slate-500;
+    }
+
+    .admin-modal-preview {
+        @apply mb-5 rounded-xl border border-slate-200 bg-slate-50 p-4;
+    }
+
+    .admin-modal-actions {
+        @apply flex gap-3;
+    }
+
+    .admin-modal-btn-cancel {
+        @apply flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50;
+    }
+
+    .admin-modal-btn-danger {
+        @apply flex flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .admin-modal-btn-logout {
+        @apply flex flex-1 items-center justify-center gap-2 rounded-xl bg-amber-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .admin-form-group {
+        @apply space-y-1.5;
+    }
+
+    .admin-form-label {
+        @apply block text-sm font-semibold text-slate-700;
+    }
+
+    .admin-form-required {
+        @apply text-red-500;
+    }
+
+    .admin-form-input {
+        @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-800 shadow-sm transition placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20;
+    }
+
+    .admin-form-textarea {
+        @apply admin-form-input resize-none min-h-[80px];
+    }
+
+    .admin-form-select {
+        @apply admin-form-input;
+    }
+
+    .admin-form-file {
+        @apply admin-form-input file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-brand-700 hover:file:bg-brand-100;
+    }
+
+    .admin-form-file-error {
+        @apply border-red-300 focus:border-red-500 focus:ring-red-500/20;
+    }
+
+    .admin-form-hint {
+        @apply text-xs text-slate-400;
+    }
+
+    .admin-form-error {
+        @apply text-xs font-medium text-red-500;
+    }
+
+    .admin-form-add-btn {
+        @apply mt-1 inline-flex items-center gap-1 rounded-lg bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-700 transition hover:bg-brand-100;
+    }
+
+    .admin-form-remove-btn {
+        @apply inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-lg font-bold text-red-500 transition hover:bg-red-50 hover:text-red-700;
+    }
+
+    .admin-form-array-row {
+        @apply mb-2 flex items-center gap-2;
+    }
+
+    .admin-modal-submit {
+        @apply mt-6 w-full rounded-xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60;
+    }
+
+    .admin-modal-btn-secondary {
+        @apply rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50;
+    }
+
+    .admin-modal-btn-success {
+        @apply rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60;
+    }
+}

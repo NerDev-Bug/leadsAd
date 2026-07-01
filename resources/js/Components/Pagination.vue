@@ -1,46 +1,42 @@
 <template>
     <div v-if="pagination && pagination.total > 0" class="flex items-center justify-start">
-        <nav class="bg-gray-50 border border-gray-200 rounded-lg shadow-sm flex" aria-label="Pagination">
-            <!-- Previous button -->
+        <nav class="inline-flex overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm" aria-label="Pagination">
             <button
                 @click="goToPage(pagination.current_page - 1)"
                 :disabled="!pagination.has_previous_page"
-                class="w-12 h-12 flex items-center justify-center rounded-l-lg text-gray-400 hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-300 border-r border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                class="flex h-10 w-10 items-center justify-center border-r border-slate-200 text-slate-500 transition hover:bg-brand-50 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
                 <span class="sr-only">Previous</span>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M15 19l-7-7 7-7" />
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
                 </svg>
             </button>
 
-            <!-- Page numbers -->
             <template v-for="page in visiblePages" :key="page">
                 <button
                     v-if="page !== '...'"
                     @click="goToPage(page)"
                     :class="[
-                        'w-12 h-12 flex items-center justify-center text-lg font-semibold border-r border-gray-200 focus:outline-none transition',
+                        'flex h-10 min-w-[2.5rem] items-center justify-center border-r border-slate-200 px-3 text-sm font-semibold transition last:border-r-0',
                         page === pagination.current_page
-                            ? 'bg-green-500 text-white shadow font-bold z-10'
-                            : 'bg-white text-rose-500 hover:bg-green-50',
-                        page === visiblePages[visiblePages.length-1] ? 'border-r-0' : ''
+                            ? 'bg-brand-600 text-white shadow-inner'
+                            : 'bg-white text-slate-600 hover:bg-brand-50 hover:text-brand-700',
                     ]"
                     :aria-current="page === pagination.current_page ? 'page' : undefined"
                 >
                     {{ page }}
                 </button>
-                <span v-else class="w-12 h-12 flex items-center justify-center text-lg text-gray-400 select-none">…</span>
+                <span v-else class="flex h-10 w-10 items-center justify-center border-r border-slate-200 text-sm text-slate-400">…</span>
             </template>
 
-            <!-- Next button -->
             <button
                 @click="goToPage(pagination.current_page + 1)"
                 :disabled="!pagination.has_more_pages"
-                class="w-12 h-12 flex items-center justify-center rounded-r-lg text-gray-400 hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-300 border-l border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                class="flex h-10 w-10 items-center justify-center text-slate-500 transition hover:bg-brand-50 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-40"
             >
                 <span class="sr-only">Next</span>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M9 5l7 7-7 7" />
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                 </svg>
             </button>
         </nav>
@@ -54,21 +50,20 @@ import { router } from '@inertiajs/vue3';
 const props = defineProps({
     pagination: {
         type: Object,
-        required: true
+        required: true,
     },
-    routeName: {   // ✅ dynamic route
+    routeName: {
         type: String,
-        required: true
+        required: true,
     },
-    extraParams: { // ✅ optional for searches/filters
+    extraParams: {
         type: Object,
-        default: () => ({})
-    }
+        default: () => ({}),
+    },
 });
 
 const emit = defineEmits(['page-changed']);
 
-// Compute visible page numbers with ellipsis
 const visiblePages = computed(() => {
     if (!props.pagination) return [];
 
@@ -106,11 +101,10 @@ const goToPage = (page) => {
         return;
     }
 
-    // ✅ Reusable for any resource
     router.get(props.routeName, { ...props.extraParams, page }, {
         preserveState: true,
         preserveScroll: true,
-        replace: true
+        replace: true,
     });
 
     emit('page-changed', page);

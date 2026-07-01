@@ -1,137 +1,56 @@
 <template>
-    <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div
-            class="relative w-full max-w-2xl mx-2 sm:mx-4 md:mx-0 bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 max-h-[90vh] flex flex-col overflow-y-auto"
-            @click.stop
-        >
-            <!-- Close Button -->
-            <button
-                class="absolute top-3 right-3 text-gray-700 text-3xl w-10 h-10 flex items-center justify-center rounded-full hover:text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                @click="$emit('update:modelValue', false)"
-                aria-label="Close modal"
-            >
-                &times;
+    <AdminModal
+        :model-value="modelValue"
+        title="Add News Article"
+        subtitle="Create a new news post"
+        icon="add"
+        size="xl"
+        @update:model-value="$emit('update:modelValue', $event)"
+    >
+        <form @submit.prevent="submitForm">
+            <div class="space-y-4">
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Title<span class="admin-form-required">*</span></label>
+                    <input v-model="form.title" type="text" class="admin-form-input" placeholder="Enter news title" @input="capitalizeFirstLetter('title')" required />
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Content<span class="admin-form-required">*</span></label>
+                    <div v-for="(content, idx) in form.contents" :key="idx" class="mb-3">
+                        <textarea v-model="form.contents[idx]" class="admin-form-textarea" :placeholder="`Section ${idx + 1}...`" @input="capitalizeFirstLetterContent(idx)" required></textarea>
+                        <div class="mt-1 flex items-center justify-between">
+                            <button type="button" @click="removeContent(idx)" v-if="form.contents.length > 1" class="text-xs font-semibold text-red-500 hover:text-red-700">Remove</button>
+                            <span class="text-xs text-slate-400">Section {{ idx + 1 }}</span>
+                        </div>
+                    </div>
+                    <button type="button" @click="addContent" class="admin-form-add-btn">+ Add Content Section</button>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Published Date</label>
+                    <VueDatePicker v-model="form.published_at" model-type="format" format="yyyy-MM-dd" :enable-time-picker="false" :clearable="true" :auto-apply="true" :teleport="true" input-class-name="admin-form-input" placeholder="Select date" />
+                    <p class="admin-form-hint">Leave empty to use current date</p>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Featured Image</label>
+                    <input type="file" @change="onFileChange" :class="['admin-form-file', imageError ? 'admin-form-file-error' : '']" accept=".jpg,.jpeg,.png,.webp" />
+                    <p class="admin-form-hint">Recommended: 1200x630px, max 10MB</p>
+                    <p v-if="imageError" class="admin-form-error">{{ imageError }}</p>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Article Image</label>
+                    <input type="file" @change="onFileChange2" :class="['admin-form-file', image2Error ? 'admin-form-file-error' : '']" accept=".jpg,.jpeg,.png,.webp" />
+                    <div v-if="featuredImages2Preview" class="mt-2">
+                        <img :src="featuredImages2Preview" class="h-24 w-32 rounded-xl object-cover ring-2 ring-slate-100" />
+                    </div>
+                    <p class="admin-form-hint">Recommended: 1200x630px, max 10MB</p>
+                    <p v-if="image2Error" class="admin-form-error">{{ image2Error }}</p>
+                </div>
+            </div>
+            <button type="submit" class="admin-modal-submit" :disabled="form.processing">
+                <span v-if="form.processing">Please wait...</span>
+                <span v-else>Submit Article</span>
             </button>
-
-            <!-- Modal Title -->
-            <h2 class="text-2xl sm:text-3xl font-bold text-center mb-6 text-gray-800">Add News Article</h2>
-
-            <!-- News Form -->
-            <form @submit.prevent="submitForm" class="flex-1 flex flex-col justify-between">
-                <div class="grid grid-cols-1 gap-4">
-                    <!-- Title -->
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">
-                            Title<span class="text-red-500">*</span>
-                        </label>
-                        <input
-                            v-model="form.title"
-                            type="text"
-                            class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            placeholder="Enter news title"
-                            @input="capitalizeFirstLetter('title')"
-                            required
-                        />
-                    </div>
-
-                    <!-- Content -->
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Content<span class="text-red-500">*</span></label>
-                        <div v-for="(content, idx) in form.contents" :key="idx" class="mb-2">
-                            <textarea
-                                v-model="form.contents[idx]"
-                                class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none min-h-[80px]"
-                                :placeholder="`Enter content section ${idx + 1}...`"
-                                @input="capitalizeFirstLetterContent(idx)"
-                                required
-                            ></textarea>
-                            <div class="flex justify-between items-center mt-1">
-                                <button
-                                    type="button"
-                                    @click="removeContent(idx)"
-                                    v-if="form.contents.length > 1"
-                                    class="text-red-500 hover:text-red-700 text-sm font-semibold focus:outline-none focus:underline"
-                                >
-                                    Remove Section
-                                </button>
-                                <span class="text-xs text-gray-500">Section {{ idx + 1 }}</span>
-                            </div>
-                        </div>
-                        <button
-                            type="button"
-                            @click="addContent"
-                            class="mt-2 text-blue-600 hover:text-blue-800 text-sm font-semibold focus:outline-none focus:underline"
-                        >
-                            + Add Content Section
-                        </button>
-                    </div>
-
-                    <!-- Published Date -->
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Published Date</label>
-                        <VueDatePicker
-                            v-model="form.published_at"
-                            model-type="format"
-                            format="yyyy-MM-dd"
-                            :enable-time-picker="false"
-                            :clearable="true"
-                            :auto-apply="true"
-                            :teleport="true"
-                            input-class-name="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            placeholder="Select date"
-                        />
-                        <p class="text-xs text-gray-500 mt-1">Leave empty to use current date</p>
-                    </div>
-
-                    <!-- Featured Image -->
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Featured Image</label>
-                        <input
-                            type="file"
-                            @change="onFileChange"
-                            :class="[
-                                'w-full border rounded-lg p-3 bg-white focus:outline-none',
-                                imageError ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500'
-                            ]"
-                            accept=".jpg,.jpeg,.png,.webp"
-                        />
-                        <p class="text-xs text-gray-500 mt-1">Recommended image size: 1200x630px with 10MB</p>
-                        <p v-if="imageError" class="text-red-500 text-sm mt-1">{{ imageError }}</p>
-                    </div>
-
-                    <!-- Featured Image 2 (Single) -->
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Article Image</label>
-                        <input
-                            type="file"
-                            @change="onFileChange2"
-                            :class="[
-                                'w-full border rounded-lg p-3 bg-white focus:outline-none',
-                                image2Error ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500'
-                            ]"
-                            accept=".jpg,.jpeg,.png,.webp"
-                        />
-                        <div v-if="featuredImages2Preview" class="mt-2">
-                            <img v-if="featuredImages2Preview" :src="featuredImages2Preview" class="w-32 h-24 object-cover rounded border" />
-                        </div>
-                        <p class="text-xs text-gray-500 mt-1">Recommended image size: 1200x630px with 10MB</p>
-                        <p v-if="image2Error" class="text-red-500 text-sm mt-1">{{ image2Error }}</p>
-                    </div>
-                </div>
-
-                <div class="mt-8">
-                    <button
-                        type="submit"
-                        class="w-full bg-blue-600 text-white text-lg font-semibold py-3 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none transition disabled:opacity-80 disabled:cursor-not-allowed"
-                        :disabled="form.processing"
-                    >
-                        <span v-if="form.processing">Please wait...</span>
-                        <span v-else>Submit</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+        </form>
+    </AdminModal>
 </template>
 
 <script setup>
@@ -139,6 +58,7 @@ import { ref, watch, defineProps, defineEmits } from 'vue';
 import { router } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 import VueDatePicker from '@vuepic/vue-datepicker';
+import AdminModal from '@/Components/Admin/AdminModal.vue';
 
 const props = defineProps({ modelValue: Boolean });
 const emit = defineEmits(['update:modelValue', 'submitted']);

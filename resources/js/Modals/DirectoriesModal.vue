@@ -1,116 +1,68 @@
 <template>
-    <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="relative w-full max-w-2xl mx-2 sm:mx-4 md:mx-0 bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 max-h-[90vh] flex flex-col overflow-y-auto"
-            @click.stop>
-            <!-- Close Button -->
-            <button
-                class="absolute top-3 right-3 text-gray-700 text-3xl w-10 h-10 flex items-center justify-center rounded-full hover:text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                @click="$emit('update:modelValue', false)" aria-label="Close modal">&times;</button>
-
-            <!-- Modal Title -->
-            <h2 class="text-2xl sm:text-3xl font-bold text-center mb-6 text-gray-800">Add Directory</h2>
-
-            <!-- Directory Form -->
-            <form @submit.prevent="submitForm" class="flex-1 flex flex-col justify-between">
-                <div class="grid grid-cols-1 gap-4">
-                    <!-- Area -->
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Area<span
-                                class="text-red-500">*</span></label>
-                        <input v-model="form.area" class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white
-                                   focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter area"
-                            required />
-                    </div>
-
-                    <!-- Region -->
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Major Island Group<span
-                                class="text-red-500">*</span></label>
-                        <select v-model="form.region" @change="updateProvinces" class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white
-                                   focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                            <option value="">Select Major Island</option>
-                            <option value="Luzon">Luzon</option>
-                            <option value="Visayas">Visayas</option>
-                            <option value="Mindanao">Mindanao</option>
-                        </select>
-                    </div>
-
-                    <!-- Place (Provinces) -->
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Provinces/Cities<span
-                                class="text-red-500">*</span></label>
-                        <select v-model="form.place" class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white
-                                   focus:ring-2 focus:ring-blue-500 focus:outline-none" required>
-                            <option value="">Select Provinces/Cities</option>
-                            <option v-for="province in availableProvinces" :key="province" :value="province">
-                                {{ province }}
-                            </option>
-                        </select>
-                    </div>
-
-                    <!-- Business Name -->
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Business Name<span
-                                class="text-red-500">*</span></label>
-                        <input v-model="form.business_name" class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white
-                                   focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            placeholder="Enter business name" required />
-                    </div>
-
-                    <!-- Address -->
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">
-                            Address
-                        </label>
-                        <textarea v-model="form.address" class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white
-           focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none min-h-[80px]" placeholder="Enter address">
-                        </textarea>
-                    </div>
-
-
-                    <!-- Contact Name -->
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">
-                            Contact Name<span class="text-red-500">*</span>
-                        </label>
-                        <input v-model="form.contact_name" class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white
-           focus:ring-2 focus:ring-blue-500 focus:outline-none" placeholder="Enter contact person" required
-                            @input="form.contact_name = form.contact_name.charAt(0).toUpperCase() + form.contact_name.slice(1)" />
-                    </div>
-
-
-                    <!-- Contact No -->
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">
-                            Contact No<span class="text-red-500">*</span>
-                        </label>
-                        <input v-model="form.contact_no" class="w-full border border-gray-300 rounded-lg p-3 text-gray-900 bg-white
-                            focus:ring-2 focus:ring-blue-500 focus:outline-none" type="tel"
-                            placeholder="Enter 11-digit number (e.g. 09123456789)" required maxlength="11"
-                            inputmode="numeric" pattern="[0-9]*"
-                            @input="form.contact_no = form.contact_no.replace(/[^0-9]/g, '').slice(0, 11)" />
-                    </div>
-
+    <AdminModal
+        :model-value="modelValue"
+        title="Add Directory"
+        subtitle="Add a new distributor or directory entry"
+        icon="add"
+        size="xl"
+        @update:model-value="$emit('update:modelValue', $event)"
+    >
+        <form @submit.prevent="submitForm">
+            <div class="space-y-4">
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Area<span class="admin-form-required">*</span></label>
+                    <input v-model="form.area" class="admin-form-input" placeholder="Enter area" required />
                 </div>
-
-                <!-- Submit Button -->
-                <div class="mt-8">
-                    <button type="submit" class="w-full bg-blue-600 text-white text-lg font-semibold py-3 rounded-lg
-                               hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none transition
-                               disabled:opacity-80 disabled:cursor-not-allowed" :disabled="form.processing">
-                        <span v-if="form.processing">Please wait...</span>
-                        <span v-else>Submit</span>
-                    </button>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Major Island Group<span class="admin-form-required">*</span></label>
+                    <select v-model="form.region" @change="updateProvinces" class="admin-form-select" required>
+                        <option value="">Select Major Island</option>
+                        <option value="Luzon">Luzon</option>
+                        <option value="Visayas">Visayas</option>
+                        <option value="Mindanao">Mindanao</option>
+                    </select>
                 </div>
-            </form>
-        </div>
-    </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Provinces/Cities<span class="admin-form-required">*</span></label>
+                    <select v-model="form.place" class="admin-form-select" required>
+                        <option value="">Select Provinces/Cities</option>
+                        <option v-for="province in availableProvinces" :key="province" :value="province">{{ province }}</option>
+                    </select>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Business Name<span class="admin-form-required">*</span></label>
+                    <input v-model="form.business_name" class="admin-form-input" placeholder="Enter business name" required />
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Address</label>
+                    <textarea v-model="form.address" class="admin-form-textarea" placeholder="Enter address"></textarea>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Contact Name<span class="admin-form-required">*</span></label>
+                    <input v-model="form.contact_name" class="admin-form-input" placeholder="Enter contact person" required
+                        @input="form.contact_name = form.contact_name.charAt(0).toUpperCase() + form.contact_name.slice(1)" />
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Contact No<span class="admin-form-required">*</span></label>
+                    <input v-model="form.contact_no" class="admin-form-input" type="tel"
+                        placeholder="09123456789" required maxlength="11" inputmode="numeric" pattern="[0-9]*"
+                        @input="form.contact_no = form.contact_no.replace(/[^0-9]/g, '').slice(0, 11)" />
+                    <p class="admin-form-hint">11-digit mobile number</p>
+                </div>
+            </div>
+            <button type="submit" class="admin-modal-submit" :disabled="form.processing">
+                <span v-if="form.processing">Please wait...</span>
+                <span v-else>Submit Directory</span>
+            </button>
+        </form>
+    </AdminModal>
 </template>
 
 <script setup>
 import { ref, defineProps, defineEmits, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
+import AdminModal from '@/Components/Admin/AdminModal.vue';
 
 const props = defineProps({ modelValue: Boolean });
 const emit = defineEmits(['update:modelValue', 'submitted']);

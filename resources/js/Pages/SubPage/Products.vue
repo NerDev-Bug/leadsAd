@@ -5,6 +5,9 @@ import ProductModal from '@/Modals/ProductModal.vue';
 import ProductUpdateModal from '@/Modals/ProductUpdateModal.vue';
 import ProductDeleteModal from '@/Modals/ProductDeleteModal.vue';
 import Pagination from '@/Components/Pagination.vue';
+import TableActions from '@/Components/Admin/TableActions.vue';
+import TableEmpty from '@/Components/Admin/TableEmpty.vue';
+import TableFooter from '@/Components/Admin/TableFooter.vue';
 import { usePage, router } from '@inertiajs/vue3';
 
 const isProductModalOpen = ref(false);
@@ -77,120 +80,100 @@ watch(search, (newVal, oldVal) => {
 
 <template>
     <SidebarLayout>
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-2xl font-bold mb-4">Product Monitoring</h1>
+        <div class="max-w-7xl mx-auto animate-fade-in">
+            <div class="mb-6">
+                <h1 class="admin-page-title">Product Monitoring</h1>
+                <p class="admin-page-subtitle">Manage and monitor all product listings</p>
+            </div>
             <div class="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-3 mb-6 w-full">
                 <input v-model="search" type="text" placeholder="Search products..."
-                    class="w-full sm:w-64 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                <button
-                    class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow transition duration-200 sm:ml-0 sm:mt-0 mt-2"
+                    class="admin-input" />
+                <button class="w-full sm:w-auto admin-btn-primary sm:ml-0 sm:mt-0 mt-2"
                     @click="openProductModal">
                     + Add Product
                 </button>
             </div>
-            <div class="overflow-x-auto bg-white rounded-lg shadow">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-100">
+            <div class="admin-table-wrap overflow-x-auto">
+                <table class="admin-table">
+                    <thead class="admin-table-head">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Product Image</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Product Name Image</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Description</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Features & Benefits</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Dosage</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Target</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Category</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Type</th>
-                            <th
-                                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider text-center">
-                                Action</th>
+                            <th class="admin-table-th">Product Image</th>
+                            <th class="admin-table-th">Product Name Image</th>
+                            <th class="admin-table-th">Description</th>
+                            <th class="admin-table-th">Features & Benefits</th>
+                            <th class="admin-table-th">Dosage</th>
+                            <th class="admin-table-th">Target</th>
+                            <th class="admin-table-th">Category</th>
+                            <th class="admin-table-th">Type</th>
+                            <th class="admin-table-th text-center">Action</th>
                         </tr>
                     </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <tr v-for="product in products" :key="product.id" class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
+                    <tbody class="admin-table-body">
+                        <tr v-for="product in products" :key="product.id" class="admin-table-row">
+                            <td class="admin-table-td whitespace-nowrap">
                                 <img v-if="product.image1"
                                     :src="`/products_image/${product.image1.replace('products/', '')}`" alt="Image 1"
-                                    class="h-12 w-12 object-cover rounded shadow-sm" />
-                                <div v-else class="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
-                                    <span class="text-gray-400 text-xs">No Image</span>
-                                </div>
+                                    class="admin-table-image" />
+                                <div v-else class="admin-table-image-placeholder">No Image</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="admin-table-td whitespace-nowrap">
                                 <img v-if="product.image2"
                                     :src="`/products_image/${product.image2.replace('products/', '')}`" alt="Image 2"
-                                    class="h-12 w-12 object-cover rounded shadow-sm" />
-                                <div v-else class="h-12 w-12 bg-gray-200 rounded flex items-center justify-center">
-                                    <span class="text-gray-400 text-xs">No Image</span>
-                                </div>
+                                    class="admin-table-image" />
+                                <div v-else class="admin-table-image-placeholder">No Image</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap" :title="product.description">{{
-                                truncateText(product.description) }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap" :title="product.features">{{
-                                truncateText(product.features) }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap" :title="product.dosage">{{
-                                truncateText(product.dosage) }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap" :title="product.target">{{
-                                truncateText(product.target) }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ product.category }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap">{{ product.type }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center">
-                                <button @click="editProduct(product)"
-                                    class="inline-flex items-center justify-center p-2 rounded-lg hover:bg-blue-100 group mr-2 transition duration-200"
-                                    title="Edit Product">
-                                    <svg class="w-5 h-5 text-blue-600 group-hover:text-blue-800" fill="none"
-                                        stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path
-                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                    </svg>
-                                </button>
-                                <button @click="deleteProduct(product)"
-                                    class="inline-flex items-center justify-center p-2 rounded-lg hover:bg-red-100 group transition duration-200"
-                                    title="Delete Product">
-                                    <svg class="w-5 h-5 text-red-600 group-hover:text-red-800" fill="none"
-                                        stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
-                                        stroke-linecap="round" stroke-linejoin="round">
-                                        <path
-                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
+                            <td class="admin-table-td whitespace-nowrap" :title="product.description">
+                                {{ truncateText(product.description) }}
+                            </td>
+                            <td class="admin-table-td whitespace-nowrap" :title="product.features">
+                                {{ truncateText(product.features) }}
+                            </td>
+                            <td class="admin-table-td whitespace-nowrap" :title="product.dosage">
+                                {{ truncateText(product.dosage) }}
+                            </td>
+                            <td class="admin-table-td whitespace-nowrap" :title="product.target">
+                                {{ truncateText(product.target) }}
+                            </td>
+                            <td class="admin-table-td whitespace-nowrap">
+                                <span class="inline-flex rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-medium text-brand-700 ring-1 ring-brand-600/20">
+                                    {{ product.category }}
+                                </span>
+                            </td>
+                            <td class="admin-table-td whitespace-nowrap">
+                                <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-600">
+                                    {{ product.type }}
+                                </span>
+                            </td>
+                            <td class="admin-table-td-action">
+                                <TableActions
+                                    edit-title="Edit Product"
+                                    delete-title="Delete Product"
+                                    @edit="editProduct(product)"
+                                    @delete="deleteProduct(product)"
+                                />
                             </td>
                         </tr>
-                        <tr v-if="!products.length">
-                            <td colspan="9" class="text-center py-8 text-gray-400">
-                                <div class="flex flex-col items-center">
-                                    <svg class="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor"
-                                        viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                    </svg>
-                                    <p class="text-lg font-medium">No products found</p>
-                                    <p class="text-sm">Get started by adding your first product</p>
-                                </div>
-                            </td>
-                        </tr>
+                        <TableEmpty
+                            v-if="!products.length"
+                            :colspan="9"
+                            title="No products found"
+                            subtitle="Get started by adding your first product"
+                        />
                     </tbody>
                 </table>
             </div>
 
-            <div class="flex justify-between items-center mb-4 py-4">
-                <div v-if="pagination" class="text-sm text-gray-600">
-                    Showing {{ pagination.from }} to {{ pagination.to }} of {{ pagination.total }} products
-                </div>
-                <div v-if="pagination" class="text-sm text-gray-600">
-                    Page {{ pagination.current_page }} of {{ pagination.last_page }}
-                </div>
-            </div>
-            <!-- Pagination Component - Bottom Left -->
-            <div class="mt-6">
+            <TableFooter
+                v-if="pagination"
+                :from="pagination.from"
+                :to="pagination.to"
+                :total="pagination.total"
+                :current-page="pagination.current_page"
+                :last-page="pagination.last_page"
+                label="products"
+            />
+
+            <div class="mt-4">
                 <Pagination v-if="pagination" :pagination="pagination" route-name="/products"
                     @page-changed="handlePageChanged" />
             </div>

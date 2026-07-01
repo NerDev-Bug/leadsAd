@@ -1,121 +1,95 @@
 <template>
-    <div v-if="modelValue" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-        <div class="relative w-full max-w-lg mx-2 sm:mx-4 md:mx-0 bg-white rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 max-h-[90vh] flex flex-col overflow-y-auto"
-            @click.stop>
-            <!-- Close Button -->
-            <button
-                class="absolute top-3 right-3 text-gray-700 text-3xl w-10 h-10 flex items-center justify-center rounded-full hover:text-black hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                @click="$emit('update:modelValue', false)" aria-label="Close modal">
-                &times;
+    <AdminModal
+        :model-value="modelValue"
+        title="Add Product"
+        subtitle="Fill in the product details below"
+        icon="add"
+        size="lg"
+        @update:model-value="$emit('update:modelValue', $event)"
+    >
+        <form @submit.prevent="submitForm">
+            <div class="space-y-4">
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Description<span class="admin-form-required">*</span></label>
+                    <textarea v-model="form.description" @input="handleInput('description')"
+                        class="admin-form-textarea min-h-[60px]" required></textarea>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Features & Benefits<span class="admin-form-required">*</span></label>
+                    <textarea v-model="form.features" @input="handleInput('features')"
+                        class="admin-form-textarea min-h-[60px]" required></textarea>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Dosage<span class="admin-form-required">*</span></label>
+                    <div v-for="(dosage, idx) in form.dosages" :key="idx" class="admin-form-array-row">
+                        <input v-model="form.dosages[idx]" @input="handleArrayInput('dosages', idx)" type="text"
+                            class="admin-form-input" required />
+                        <button type="button" @click="removeDosage(idx)" v-if="form.dosages.length > 1"
+                            class="admin-form-remove-btn">&minus;</button>
+                    </div>
+                    <button type="button" @click="addDosage" class="admin-form-add-btn">+ Add Dosage</button>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Target<span class="admin-form-required">*</span></label>
+                    <div v-for="(target, idx) in form.targets" :key="idx" class="admin-form-array-row">
+                        <input v-model="form.targets[idx]" @input="handleArrayInput('targets', idx)" type="text"
+                            class="admin-form-input" required />
+                        <button type="button" @click="removeTarget(idx)" v-if="form.targets.length > 1"
+                            class="admin-form-remove-btn">&minus;</button>
+                    </div>
+                    <button type="button" @click="addTarget" class="admin-form-add-btn">+ Add Target</button>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Category<span class="admin-form-required">*</span></label>
+                    <select v-model="form.category" required class="admin-form-select">
+                        <option value="" disabled selected>— Please choose a category —</option>
+                        <option value="Rice">Rice</option>
+                        <option value="Mango">Mango</option>
+                        <option value="Vegetables">Vegetables</option>
+                        <option value="Sugarcane">Sugarcane</option>
+                        <option value="Other Crops">Other Crops</option>
+                    </select>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Type<span class="admin-form-required">*</span></label>
+                    <select v-model="form.type" required class="admin-form-select">
+                        <option value="" disabled selected>— Please choose a type —</option>
+                        <option value="Herbicide">Herbicide</option>
+                        <option value="Fungicide">Fungicide</option>
+                        <option value="Biostimulant">Biostimulant</option>
+                        <option value="Insecticide">Insecticide</option>
+                        <option value="Molluscicide">Molluscicide</option>
+                    </select>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Product Image<span class="admin-form-required">*</span></label>
+                    <input type="file" @change="onFileChange($event, 1)"
+                        :class="['admin-form-file', image1Error ? 'admin-form-file-error' : '']"
+                        required accept=".jpg,.jpeg,.png" />
+                    <p class="admin-form-hint">Recommended resolution size: 550x580</p>
+                    <p v-if="image1Error" class="admin-form-error">{{ image1Error }}</p>
+                </div>
+                <div class="admin-form-group">
+                    <label class="admin-form-label">Product Name Image<span class="admin-form-required">*</span></label>
+                    <input type="file" @change="onFileChange($event, 2)"
+                        :class="['admin-form-file', image2Error ? 'admin-form-file-error' : '']"
+                        accept=".jpg,.jpeg,.png" />
+                    <p v-if="image2Error" class="admin-form-error">{{ image2Error }}</p>
+                </div>
+            </div>
+            <button type="submit" class="admin-modal-submit" :disabled="form.processing">
+                <span v-if="form.processing">Please wait...</span>
+                <span v-else>Submit Product</span>
             </button>
-            <!-- Modal Title -->
-            <h2 class="text-2xl sm:text-3xl font-bold text-center mb-6 text-gray-800">Add Product</h2>
-            <!-- Product Form -->
-            <form @submit.prevent="submitForm" class="flex-1 flex flex-col justify-between">
-                <div class="grid grid-cols-1 gap-4">
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Description<span
-                                class="text-red-500">*</span></label>
-                        <textarea v-model="form.description" @input="handleInput('description')"
-                            class="w-full border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none min-h-[60px]"
-                            required></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Features & Benefits<span
-                                class="text-red-500">*</span></label>
-                        <textarea v-model="form.features" @input="handleInput('features')"
-                            class="w-full border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none min-h-[60px]"
-                            required></textarea>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Dosage<span
-                                class="text-red-500">*</span></label>
-                        <div v-for="(dosage, idx) in form.dosages" :key="idx" class="flex items-center mb-2 gap-2">
-                            <input v-model="form.dosages[idx]" @input="handleArrayInput('dosages', idx)" type="text"
-                                class="flex-1 border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                required />
-                            <button type="button" @click="removeDosage(idx)" v-if="form.dosages.length > 1"
-                                class="text-red-500 hover:text-red-700 text-xl px-2 py-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">&minus;</button>
-                        </div>
-                        <button type="button" @click="addDosage"
-                            class="mt-1 text-blue-600 hover:text-blue-800 text-sm font-semibold focus:outline-none focus:underline">+
-                            Add Dosage</button>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Target<span
-                                class="text-red-500">*</span></label>
-                        <div v-for="(target, idx) in form.targets" :key="idx" class="flex items-center mb-2 gap-2">
-                            <input v-model="form.targets[idx]" @input="handleArrayInput('targets', idx)" type="text"
-                                class="flex-1 border border-gray-300 rounded-lg p-2 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                required />
-                            <button type="button" @click="removeTarget(idx)" v-if="form.targets.length > 1"
-                                class="text-red-500 hover:text-red-700 text-xl px-2 py-1 rounded-full focus:outline-none focus:ring-2 focus:ring-red-400">&minus;</button>
-                        </div>
-                        <button type="button" @click="addTarget"
-                            class="mt-1 text-blue-600 hover:text-blue-800 text-sm font-semibold focus:outline-none focus:underline">+
-                            Add Target</button>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Category<span
-                                class="text-red-500">*</span></label>
-                        <select v-model="form.category" required
-                            class="w-full border border-gray-400 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="" disabled selected>— Please choose a category —</option>
-                            <option value="Rice">Rice</option>
-                            <option value="Mango">Mango</option>
-                            <option value="Vegetables">Vegetables</option>
-                            <option value="Sugarcane">Sugarcane</option>
-                            <option value="Other Crops">Other Crops</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Type<span
-                                class="text-red-500">*</span></label>
-                        <select v-model="form.type" required
-                            class="w-full border border-gray-400 rounded-lg p-3 text-gray-900 bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none">
-                            <option value="" disabled selected>— Please choose a type —</option>
-                            <option value="Herbicide">Herbicide</option>
-                            <option value="Fungicide">Fungicide</option>
-                            <option value="Biostimulant">Biostimulant</option>
-                            <option value="Insecticide">Insecticide</option>
-                            <option value="Molluscicide">Molluscicide</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Product Image<span
-                                class="text-red-500">*</span></label>
-                        <input type="file" @change="onFileChange($event, 1)"
-                            :class="['w-full border rounded-lg p-2 bg-white focus:outline-none', image1Error ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500']"
-                            required accept=".jpg,.jpeg,.png" />
-                        <p class="text-xs text-gray-500 mt-1">Recommended resolution size: 550x580</p>
-                        <p v-if="image1Error" class="text-red-500 text-sm mt-1">{{ image1Error }}</p>
-                    </div>
-                    <div>
-                        <label class="block text-gray-700 font-medium mb-1">Product Name Image<span
-                                class="text-red-500">*</span></label>
-                        <input type="file" @change="onFileChange($event, 2)"
-                            :class="['w-full border rounded-lg p-2 bg-white focus:outline-none', image2Error ? 'border-red-500 focus:ring-2 focus:ring-red-500' : 'border-gray-300 focus:ring-2 focus:ring-blue-500']"
-                            accept=".jpg,.jpeg,.png" />
-                        <p v-if="image2Error" class="text-red-500 text-sm mt-1">{{ image2Error }}</p>
-                    </div>
-                </div>
-                <div class="mt-8">
-                    <button type="submit"
-                        class="w-full bg-blue-600 text-white text-lg font-semibold py-3 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:outline-none transition disabled:opacity-80 disabled:cursor-not-allowed"
-                        :disabled="form.processing">
-                        <span v-if="form.processing">Please wait...</span>
-                        <span v-else>Submit</span>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
+        </form>
+    </AdminModal>
 </template>
 
 <script setup>
 import { ref, watch, defineProps, defineEmits } from 'vue';
 import { router } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
+import AdminModal from '@/Components/Admin/AdminModal.vue';
 
 const props = defineProps({
     modelValue: Boolean
@@ -134,7 +108,6 @@ const form = ref({
     processing: false
 });
 
-// Error messages for file inputs
 const image1Error = ref('');
 const image2Error = ref('');
 
@@ -181,19 +154,10 @@ function onFileChange(event, imgNum) {
     }
 }
 
-const addTarget = () => {
-    form.value.targets.push('');
-};
-const removeTarget = (idx) => {
-    if (form.value.targets.length > 1) form.value.targets.splice(idx, 1);
-};
-
-const addDosage = () => {
-    form.value.dosages.push('');
-};
-const removeDosage = (idx) => {
-    if (form.value.dosages.length > 1) form.value.dosages.splice(idx, 1);
-};
+const addTarget = () => { form.value.targets.push(''); };
+const removeTarget = (idx) => { if (form.value.targets.length > 1) form.value.targets.splice(idx, 1); };
+const addDosage = () => { form.value.dosages.push(''); };
+const removeDosage = (idx) => { if (form.value.dosages.length > 1) form.value.dosages.splice(idx, 1); };
 
 function capitalizeFirstLetter(str) {
     if (!str) return '';
@@ -209,7 +173,6 @@ function handleArrayInput(field, idx) {
 
 async function submitForm() {
     form.value.processing = true;
-    // Capitalize first letter of relevant fields
     form.value.description = capitalizeFirstLetter(form.value.description);
     form.value.features = capitalizeFirstLetter(form.value.features);
     form.value.dosages = form.value.dosages.map(capitalizeFirstLetter);
@@ -233,12 +196,12 @@ async function submitForm() {
                 title: 'Success!',
                 text: 'Product added successfully!',
                 icon: 'success',
-                confirmButtonColor: '#3085d6',
+                confirmButtonColor: '#057A31',
             }).then(() => {
                 router.visit('/products');
             });
         },
-        onError: (errors) => {
+        onError: () => {
             Swal.fire({
                 title: 'Error!',
                 text: 'Failed to add product. Please check your input.',
