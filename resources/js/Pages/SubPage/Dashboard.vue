@@ -86,7 +86,7 @@ const visitorCards = computed(() => [
 ]);
 
 onMounted(() => {
-    fetch('http://127.0.0.1:8000/api/visitor-stats')
+    fetch('https://www.leadsagri.com/api/visitor-stats')
         .then((res) => res.json())
         .then((data) => {
             visitorStats.value = data;
