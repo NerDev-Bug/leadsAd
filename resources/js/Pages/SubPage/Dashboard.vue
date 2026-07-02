@@ -1,20 +1,66 @@
 <script setup>
 import SidebarLayout from '@/Layouts/SidebarLayout.vue';
-import { computed, ref, onMounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted } from 'vue';
 import { usePage } from '@inertiajs/vue3';
+
+const VISITOR_STATS_URL = 'https://www.leadsagri.com/api/visitor-stats';
+const REFRESH_INTERVAL_MS = 30_000;
 
 const page = usePage();
 const productsCount = computed(() => page.props.productsCount ?? 0);
 const newsCount = computed(() => page.props.newsCount ?? 0);
 const careersCount = computed(() => page.props.careersCount ?? 0);
+const directoriesCount = computed(() => page.props.directoriesCount ?? 0);
 
 const visitorStats = ref({
     total_visits: 0,
     unique_visitors: 0,
 });
 const statsLoading = ref(true);
+const statsRefreshing = ref(false);
+const lastUpdated = ref(null);
+let refreshTimer = null;
 
-const userName = computed(() => page.props.auth?.user?.username || 'Admin');
+const lastUpdatedLabel = computed(() => {
+    if (!lastUpdated.value) return '';
+    return lastUpdated.value.toLocaleTimeString('en-PH', {
+        hour: 'numeric',
+        minute: '2-digit',
+    });
+});
+
+async function fetchVisitorStats({ silent = false } = {}) {
+    if (!silent) {
+        statsLoading.value = true;
+    } else {
+        statsRefreshing.value = true;
+    }
+
+    try {
+        const res = await fetch(VISITOR_STATS_URL);
+        if (!res.ok) throw new Error('Failed to fetch visitor stats');
+        visitorStats.value = await res.json();
+        lastUpdated.value = new Date();
+    } catch {
+        // Keep previous values on silent refresh failure
+    } finally {
+        statsLoading.value = false;
+        statsRefreshing.value = false;
+    }
+}
+
+function startAutoRefresh() {
+    refreshTimer = setInterval(() => fetchVisitorStats({ silent: true }), REFRESH_INTERVAL_MS);
+}
+
+onMounted(() => {
+    fetchVisitorStats();
+    startAutoRefresh();
+});
+
+onUnmounted(() => {
+    if (refreshTimer) clearInterval(refreshTimer);
+});
 
 const greeting = computed(() => {
     const hour = new Date().getHours();
@@ -60,6 +106,15 @@ const contentStats = computed(() => [
         text: 'text-amber-600',
         ring: 'ring-amber-100',
     },
+    {
+        label: 'Total Directories',
+        value: directoriesCount.value,
+        icon: 'folder',
+        accent: 'from-purple-500 to-pink-500',
+        bg: 'bg-purple-50',
+        text: 'text-purple-600',
+        ring: 'ring-purple-100',
+    },
 ]);
 
 const visitorCards = computed(() => [
@@ -85,16 +140,7 @@ const visitorCards = computed(() => [
     },
 ]);
 
-onMounted(() => {
-    fetch('https://www.leadsagri.com/api/visitor-stats')
-        .then((res) => res.json())
-        .then((data) => {
-            visitorStats.value = data;
-        })
-        .finally(() => {
-            statsLoading.value = false;
-        });
-});
+const userName = computed(() => page.props.auth?.user?.username || 'Admin');
 </script>
 
 <template>
@@ -121,7 +167,7 @@ onMounted(() => {
                     <div class="h-5 w-1 rounded-full bg-brand-600" />
                     <h2 class="text-lg font-semibold text-slate-800">Content Overview</h2>
                 </div>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                     <div
                         v-for="(stat, index) in contentStats"
                         :key="stat.label"
@@ -158,20 +204,42 @@ onMounted(() => {
                         <div class="h-5 w-1 rounded-full bg-violet-500" />
                         <h2 class="text-lg font-semibold text-slate-800">Website Analytics</h2>
                     </div>
-                    <span
-                        v-if="statsLoading"
-                        class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500"
-                    >
-                        <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-500" />
-                        Loading...
-                    </span>
-                    <span
-                        v-else
-                        class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700"
-                    >
-                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                        Live data
-                    </span>
+                    <div class="flex items-center gap-2">
+                        <span
+                            v-if="statsLoading"
+                            class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-500"
+                        >
+                            <span class="h-1.5 w-1.5 animate-pulse rounded-full bg-brand-500" />
+                            Loading...
+                        </span>
+                        <template v-else>
+                            <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                                <span
+                                    :class="[
+                                        'h-1.5 w-1.5 rounded-full',
+                                        statsRefreshing ? 'animate-pulse bg-brand-500' : 'bg-emerald-500',
+                                    ]"
+                                />
+                                Updated {{ lastUpdatedLabel }}
+                            </span>
+                            <button
+                                type="button"
+                                class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
+                                :disabled="statsRefreshing"
+                                @click="fetchVisitorStats({ silent: true })"
+                            >
+                                <svg
+                                    :class="['h-3.5 w-3.5', statsRefreshing ? 'animate-spin' : '']"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                                Refresh
+                            </button>
+                        </template>
+                    </div>
                 </div>
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div
