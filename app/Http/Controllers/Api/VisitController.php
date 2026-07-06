@@ -15,8 +15,11 @@ class VisitController extends Controller
         return response()->json([
             'total_visits' => Visit::count(),
             'unique_visitors' => Visit::distinct('ip_address')->count('ip_address'),
-            'today' => Visit::whereDate('created_at', $now->toDateString())->count(),
-            'last_7_days' => Visit::where('created_at', '>=', $now->subDays(7))->count(),
+            'today' => [
+                'visits' => Visit::whereDate('created_at', $now->toDateString())->count(),
+                'unique' => Visit::whereDate('created_at', $now->toDateString())->distinct('ip_address')->count('ip_address'),
+            ],
+            'last_7_days' => Visit::where('created_at', '>=', $now->copy()->subDays(7))->count(),
         ]);
     }
 }

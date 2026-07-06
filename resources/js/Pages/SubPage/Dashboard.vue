@@ -1,7 +1,27 @@
 <script setup>
 import SidebarLayout from '@/Layouts/SidebarLayout.vue';
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { usePage } from '@inertiajs/vue3';
+import {
+    Chart,
+    LineController,
+    LineElement,
+    PointElement,
+    LinearScale,
+    CategoryScale,
+    Filler,
+    Tooltip,
+} from 'chart.js';
+
+Chart.register(
+    LineController,
+    LineElement,
+    PointElement,
+    LinearScale,
+    CategoryScale,
+    Filler,
+    Tooltip,
+);
 
 const VISITOR_STATS_URL = 'https://www.leadsagri.com/api/visitor-stats';
 const REFRESH_INTERVAL_MS = 30_000;
@@ -12,14 +32,130 @@ const newsCount = computed(() => page.props.newsCount ?? 0);
 const careersCount = computed(() => page.props.careersCount ?? 0);
 const directoriesCount = computed(() => page.props.directoriesCount ?? 0);
 
-const visitorStats = ref({
-    total_visits: 0,
-    unique_visitors: 0,
-});
+const visitorStats = ref({ visits: 0 });
+const dailyRecords = ref([]);
+
+function parseTodayVisits(today) {
+    if (typeof today === 'number') return today;
+    if (today && typeof today === 'object') return today.visits ?? 0;
+    return 0;
+}
+
+function normalizeDaily(records) {
+    return [...(records ?? [])]
+        .map((row) => ({
+            date: row.date,
+            visits: row.total_visits ?? row.visits ?? 0,
+        }))
+        .sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function formatDayLabel(dateStr) {
+    const date = new Date(`${dateStr}T00:00:00`);
+    return date.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' });
+}
+
+function getWeekStart(dateStr) {
+    const date = new Date(`${dateStr}T00:00:00`);
+    const day = date.getDay();
+    const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+    const monday = new Date(date);
+    monday.setDate(diff);
+    return monday.toISOString().slice(0, 10);
+}
+
+function chartFromDaily(period) {
+    const records = normalizeDaily(dailyRecords.value);
+
+    if (!records.length) {
+        return { labels: [], data: [], title: '' };
+    }
+
+    if (period === 'days') {
+        return {
+            title: `Daily visitors (last ${records.length} days)`,
+            labels: records.map((row) => formatDayLabel(row.date)),
+            data: records.map((row) => row.visits),
+        };
+    }
+
+    if (period === 'weeks') {
+        const buckets = new Map();
+        for (const row of records) {
+            const key = getWeekStart(row.date);
+            buckets.set(key, (buckets.get(key) ?? 0) + row.visits);
+        }
+        const sorted = [...buckets.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+        return {
+            title: 'Weekly visitors',
+            labels: sorted.map(([key]) => `Week of ${formatDayLabel(key)}`),
+            data: sorted.map(([, visits]) => visits),
+        };
+    }
+
+    if (period === 'months') {
+        const buckets = new Map();
+        for (const row of records) {
+            const key = row.date.slice(0, 7);
+            buckets.set(key, (buckets.get(key) ?? 0) + row.visits);
+        }
+        const sorted = [...buckets.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+        return {
+            title: 'Monthly visitors',
+            labels: sorted.map(([key]) => {
+                const [year, month] = key.split('-');
+                const date = new Date(Number(year), Number(month) - 1, 1);
+                return date.toLocaleDateString('en-PH', { month: 'short', year: 'numeric' });
+            }),
+            data: sorted.map(([, visits]) => visits),
+        };
+    }
+
+    const buckets = new Map();
+    for (const row of records) {
+        const key = row.date.slice(0, 4);
+        buckets.set(key, (buckets.get(key) ?? 0) + row.visits);
+    }
+    const sorted = [...buckets.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+    return {
+        title: 'Yearly visitors',
+        labels: sorted.map(([year]) => year),
+        data: sorted.map(([, visits]) => visits),
+    };
+}
+
+async function renderChartFromDaily() {
+    const { labels, data, title } = chartFromDaily(activePeriod.value);
+    chartTitle.value = title || 'Daily visitors';
+    chartTotal.value = data.reduce((sum, value) => sum + value, 0);
+
+    chartLoading.value = false;
+    await nextTick();
+    buildChart(labels, data);
+
+    if (chartInstance) {
+        chartInstance.resize();
+    }
+}
+
 const statsLoading = ref(true);
 const statsRefreshing = ref(false);
 const lastUpdated = ref(null);
 let refreshTimer = null;
+
+const chartPeriods = [
+    { id: 'days', label: 'Days' },
+    { id: 'weeks', label: 'Weeks' },
+    { id: 'months', label: 'Months' },
+    { id: 'years', label: 'Years' },
+];
+
+const activePeriod = ref('days');
+const chartLoading = ref(true);
+const chartTitle = ref('Daily visitors');
+const chartTotal = ref(0);
+const chartCanvas = ref(null);
+let chartInstance = null;
 
 const lastUpdatedLabel = computed(() => {
     if (!lastUpdated.value) return '';
@@ -32,6 +168,7 @@ const lastUpdatedLabel = computed(() => {
 async function fetchVisitorStats({ silent = false } = {}) {
     if (!silent) {
         statsLoading.value = true;
+        chartLoading.value = true;
     } else {
         statsRefreshing.value = true;
     }
@@ -39,9 +176,14 @@ async function fetchVisitorStats({ silent = false } = {}) {
     try {
         const res = await fetch(VISITOR_STATS_URL);
         if (!res.ok) throw new Error('Failed to fetch visitor stats');
-        visitorStats.value = await res.json();
+        const data = await res.json();
+        if (!Array.isArray(data.daily)) throw new Error('Invalid visitor stats response');
+        dailyRecords.value = data.daily;
+        visitorStats.value = { visits: parseTodayVisits(data.today) };
         lastUpdated.value = new Date();
+        await renderChartFromDaily();
     } catch {
+        chartLoading.value = false;
         // Keep previous values on silent refresh failure
     } finally {
         statsLoading.value = false;
@@ -49,9 +191,107 @@ async function fetchVisitorStats({ silent = false } = {}) {
     }
 }
 
+function buildChart(labels, data) {
+    if (!chartCanvas.value) return;
+
+    if (chartInstance) {
+        chartInstance.destroy();
+        chartInstance = null;
+    }
+
+    const ctx = chartCanvas.value.getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+    gradient.addColorStop(0, 'rgba(5, 122, 49, 0.22)');
+    gradient.addColorStop(1, 'rgba(5, 122, 49, 0.01)');
+
+    chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: 'Visitors',
+                    data,
+                    borderColor: '#057A31',
+                    backgroundColor: gradient,
+                    borderWidth: 2.5,
+                    pointBackgroundColor: '#ffffff',
+                    pointBorderColor: '#057A31',
+                    pointBorderWidth: 2,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    pointHoverBackgroundColor: '#057A31',
+                    pointHoverBorderColor: '#ffffff',
+                    pointHoverBorderWidth: 2,
+                    fill: true,
+                    tension: 0.38,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#1e293b',
+                    titleFont: { size: 12, weight: '600' },
+                    bodyFont: { size: 13 },
+                    padding: 12,
+                    cornerRadius: 10,
+                    displayColors: false,
+                    callbacks: {
+                        label: (ctx) => `${ctx.parsed.y.toLocaleString()} visitor${ctx.parsed.y === 1 ? '' : 's'}`,
+                    },
+                },
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    border: { display: false },
+                    ticks: {
+                        color: '#94a3b8',
+                        font: { size: 11 },
+                        maxRotation: 0,
+                        autoSkip: true,
+                        maxTicksLimit: 8,
+                    },
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(148, 163, 184, 0.15)',
+                        drawBorder: false,
+                    },
+                    border: { display: false, dash: [4, 4] },
+                    ticks: {
+                        color: '#94a3b8',
+                        font: { size: 11 },
+                        padding: 8,
+                        precision: 0,
+                    },
+                },
+            },
+        },
+    });
+}
+
+function setChartPeriod(period) {
+    if (activePeriod.value === period) return;
+    activePeriod.value = period;
+}
+
 function startAutoRefresh() {
     refreshTimer = setInterval(() => fetchVisitorStats({ silent: true }), REFRESH_INTERVAL_MS);
 }
+
+watch(activePeriod, () => {
+    renderChartFromDaily();
+});
 
 onMounted(() => {
     fetchVisitorStats();
@@ -60,6 +300,10 @@ onMounted(() => {
 
 onUnmounted(() => {
     if (refreshTimer) clearInterval(refreshTimer);
+    if (chartInstance) {
+        chartInstance.destroy();
+        chartInstance = null;
+    }
 });
 
 const greeting = computed(() => {
@@ -119,24 +363,14 @@ const contentStats = computed(() => [
 
 const visitorCards = computed(() => [
     {
-        label: 'Total Viewed',
-        value: visitorStats.value.total_visits,
-        description: 'All page views',
+        label: 'Page Views Today',
+        value: visitorStats.value.visits,
+        description: `Resets tomorrow · ${todayFormatted.value}`,
         icon: 'eye',
         accent: 'from-violet-500 to-purple-600',
         bg: 'bg-violet-50',
         text: 'text-violet-600',
         ring: 'ring-violet-100',
-    },
-    {
-        label: 'Unique Visitors',
-        value: visitorStats.value.unique_visitors,
-        description: 'Distinct visitors',
-        icon: 'users',
-        accent: 'from-indigo-500 to-blue-600',
-        bg: 'bg-indigo-50',
-        text: 'text-indigo-600',
-        ring: 'ring-indigo-100',
     },
 ]);
 
@@ -202,7 +436,7 @@ const userName = computed(() => page.props.auth?.user?.username || 'Admin');
                 <div class="mb-4 flex items-center justify-between">
                     <div class="flex items-center gap-2">
                         <div class="h-5 w-1 rounded-full bg-violet-500" />
-                        <h2 class="text-lg font-semibold text-slate-800">Website Analytics</h2>
+                        <h2 class="text-lg font-semibold text-slate-800">Today's Visitors</h2>
                     </div>
                     <div class="flex items-center gap-2">
                         <span
@@ -241,11 +475,13 @@ const userName = computed(() => page.props.auth?.user?.username || 'Admin');
                         </template>
                     </div>
                 </div>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+
+                <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+                    <!-- Today card -->
                     <div
                         v-for="(stat, index) in visitorCards"
                         :key="stat.label"
-                        class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover animate-slide-up"
+                        class="group relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white p-5 shadow-card transition-all duration-300 hover:-translate-y-1 hover:shadow-card-hover animate-slide-up lg:col-span-1"
                         :style="{ animationDelay: `${(index + 3) * 80}ms` }"
                     >
                         <div :class="['absolute inset-x-0 top-0 h-1 bg-gradient-to-r', stat.accent]" />
@@ -263,9 +499,66 @@ const userName = computed(() => page.props.auth?.user?.username || 'Admin');
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
-                                <svg v-else class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 lg:grid-cols-3 mt-4">
+                    <!-- Visitor line chart -->
+                    <div class="relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-card lg:col-span-3">
+                        <div class="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-500 to-emerald-500" />
+
+                        <div class="flex flex-col gap-4 border-b border-slate-100 p-5 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                                <h3 class="text-base font-semibold text-slate-800">Visitor Trends</h3>
+                                <p class="mt-0.5 text-sm text-slate-500">{{ chartTitle }}</p>
+                                <p v-if="!chartLoading && chartTotal > 0" class="mt-2 text-xs font-medium text-brand-600">
+                                    {{ chartTotal.toLocaleString() }} total in this period
+                                </p>
+                            </div>
+
+                            <div class="inline-flex shrink-0 self-start rounded-xl bg-slate-100 p-1">
+                                <button
+                                    v-for="period in chartPeriods"
+                                    :key="period.id"
+                                    type="button"
+                                    :class="[
+                                        'rounded-lg px-3 py-1.5 text-xs font-semibold transition-all duration-200',
+                                        activePeriod === period.id
+                                            ? 'bg-white text-brand-700 shadow-sm ring-1 ring-slate-200/80'
+                                            : 'text-slate-500 hover:text-slate-700',
+                                    ]"
+                                    @click="setChartPeriod(period.id)"
+                                >
+                                    {{ period.label }}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="relative p-5 pt-4">
+                            <div
+                                v-if="chartLoading"
+                                class="flex h-64 items-center justify-center rounded-xl bg-slate-50"
+                            >
+                                <div class="flex flex-col items-center gap-3">
+                                    <div class="h-8 w-8 animate-spin rounded-full border-2 border-brand-200 border-t-brand-600" />
+                                    <p class="text-xs font-medium text-slate-400">Loading chart...</p>
+                                </div>
+                            </div>
+
+                            <div
+                                v-if="!chartLoading"
+                                class="relative h-64 w-full"
+                            >
+                                <canvas ref="chartCanvas" />
+                            </div>
+
+                            <div
+                                v-if="!chartLoading && !dailyRecords.length"
+                                class="absolute inset-0 flex items-center justify-center p-5"
+                            >
+                                <p class="text-sm text-slate-400">No visitor data available yet.</p>
                             </div>
                         </div>
                     </div>
