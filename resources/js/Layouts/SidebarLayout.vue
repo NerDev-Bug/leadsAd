@@ -10,8 +10,9 @@
         <!-- Sidebar -->
         <aside
             :class="[
-                'fixed z-40 inset-y-0 left-0 w-72 flex flex-col transform transition-transform duration-300 ease-out lg:static lg:translate-x-0',
+                'fixed z-40 inset-y-0 left-0 w-72 flex flex-col transform transition-transform duration-300 ease-out',
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+                'lg:translate-x-0'
             ]"
         >
             <div class="flex flex-col h-full bg-gradient-to-b from-slate-900 via-slate-900 to-slate-800 text-white shadow-xl">
@@ -94,7 +95,7 @@
         </aside>
 
         <!-- Main content -->
-        <div class="flex min-h-screen flex-1 flex-col overflow-x-hidden">
+        <div class="flex min-h-screen flex-1 flex-col overflow-x-hidden lg:ml-72">
             <!-- Mobile header -->
             <header class="sticky top-0 z-20 border-b border-slate-200/80 bg-white/80 backdrop-blur-md lg:hidden">
                 <div class="flex items-center justify-between px-4 py-3">
