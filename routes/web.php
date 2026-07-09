@@ -11,10 +11,12 @@ Route::get('/dashboard', function () {
     $productsCount = \App\Models\product::count();
     $newsCount = \App\Models\News::count();
     $careersCount = \App\Models\Career::count();
+    $directoriesCount = \App\models\Directory::count();
     return Inertia::render('SubPage/Dashboard', [
         'productsCount' => $productsCount,
         'newsCount' => $newsCount,
         'careersCount' => $careersCount,
+        'directoriesCount' => $directoriesCount,
     ]);
 })->middleware('auth')->name('dashboard');
 
