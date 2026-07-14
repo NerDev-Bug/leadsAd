@@ -11,7 +11,7 @@ Route::get('/dashboard', function () {
     $productsCount = \App\Models\product::count();
     $newsCount = \App\Models\News::count();
     $careersCount = \App\Models\Career::count();
-    $directoriesCount = \App\models\Directory::count();
+    $directoriesCount = \App\Models\Directory::count();
     return Inertia::render('SubPage/Dashboard', [
         'productsCount' => $productsCount,
         'newsCount' => $newsCount,
@@ -53,6 +53,7 @@ Route::delete('/careers/{career}', [CareerController::class, 'destroy'])->middle
 // Directories functions
 Route::get('/directories', [DirectoryController::class, 'index'])->middleware('auth')->name('directories');
 Route::post('/directories', [DirectoryController::class, 'store'])->middleware('auth');
+Route::post('/directories/import', [DirectoryController::class, 'import'])->middleware('auth')->name('directories.import');
 Route::put('/directories/{directory}', [DirectoryController::class, 'update'])->middleware('auth')->name('directories.update');
 Route::delete('/directories/{directory}', [DirectoryController::class, 'destroy'])->middleware('auth')->name('directories.destroy');
 

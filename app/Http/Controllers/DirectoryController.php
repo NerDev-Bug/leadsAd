@@ -113,6 +113,37 @@ class DirectoryController extends Controller
     }
 
     /**
+     * Import directories from CSV payload.
+     */
+    public function import(Request $request)
+    {
+        $validated = $request->validate([
+            'rows' => 'required|array|min:1',
+            'rows.*.area' => 'required|string',
+            'rows.*.region' => 'required|string',
+            'rows.*.place' => 'required|string',
+            'rows.*.business_name' => 'required|string',
+            'rows.*.address' => 'nullable|string',
+            'rows.*.contact_name' => 'required|string',
+            'rows.*.contact_no' => 'required|string',
+        ]);
+
+        foreach ($validated['rows'] as $row) {
+            Directory::create([
+                'area' => $row['area'],
+                'region' => $row['region'],
+                'place' => $row['place'],
+                'business_name' => $row['business_name'],
+                'address' => $row['address'] ?? null,
+                'contact_name' => $row['contact_name'],
+                'contact_no' => $row['contact_no'],
+            ]);
+        }
+
+        return redirect()->route('directories');
+    }
+
+    /**
      * Remove the specified resource from storage.
      */
     public function destroy(Directory $directory)

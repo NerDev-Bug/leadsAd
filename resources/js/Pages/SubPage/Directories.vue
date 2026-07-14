@@ -4,6 +4,7 @@ import { ref, computed, watch } from 'vue';
 import DirectoriesModal from '@/Modals/DirectoriesModal.vue';
 import DirectoriesUpdateModal from '@/Modals/DirectoriesUpdateModal.vue';
 import DirectoriesDeleteModal from '@/Modals/DirectoriesDeleteModal.vue';
+import DirectoriesImportModal from '@/Modals/DirectoriesImportModal.vue';
 import Pagination from '@/Components/Pagination.vue';
 import TableActions from '@/Components/Admin/TableActions.vue';
 import TableEmpty from '@/Components/Admin/TableEmpty.vue';
@@ -13,6 +14,7 @@ import { usePage, router } from '@inertiajs/vue3';
 const isDirectoryModalOpen = ref(false);
 const isDirectoryUpdateModalOpen = ref(false);
 const isDirectoryDeleteModalOpen = ref(false);
+const isDirectoryImportModalOpen = ref(false);
 const selectedDirectory = ref(null);
 
 function openDirectoryModal() {
@@ -57,6 +59,10 @@ function handleDirectoryDeleted(deletedDirectory) {
     console.log('Directory deleted:', deletedDirectory);
 }
 
+function handleDirectoryImported() {
+    router.visit('/directories');
+}
+
 function handlePageChanged(page) {
     console.log('Page changed to:', page);
 }
@@ -93,12 +99,20 @@ watch(search, (newVal) => {
                     placeholder="Search directories..."
                     class="admin-input"
                 />
-                <button
-                    class="w-full sm:w-auto admin-btn-primary sm:ml-0 sm:mt-0 mt-2"
-                    @click="openDirectoryModal"
-                >
-                    + Add Directory
-                </button>
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <button
+                        class="w-full sm:w-auto admin-btn-secondary"
+                        @click="isDirectoryImportModalOpen = true"
+                    >
+                        Import CSV
+                    </button>
+                    <button
+                        class="w-full sm:w-auto admin-btn-primary"
+                        @click="openDirectoryModal"
+                    >
+                        + Add Directory
+                    </button>
+                </div>
             </div>
 
             <!-- Table -->
@@ -169,5 +183,6 @@ watch(search, (newVal) => {
         <DirectoriesModal v-model="isDirectoryModalOpen" @submitted="handleDirectorySubmit" />
         <DirectoriesUpdateModal v-model="isDirectoryUpdateModalOpen" :directory="selectedDirectory" @submitted="handleDirectorySubmit" />
         <DirectoriesDeleteModal v-model="isDirectoryDeleteModalOpen" :directory="selectedDirectory" @deleted="handleDirectoryDeleted" />
+        <DirectoriesImportModal v-model="isDirectoryImportModalOpen" @imported="handleDirectoryImported" />
     </SidebarLayout>
 </template>
