@@ -163,9 +163,16 @@ watch(search, (newVal, oldVal) => {
                                 </div>
                             </td>
                             <td class="admin-table-td whitespace-nowrap">
-                                <span class="admin-table-td-primary" :title="newsItem.title">
-                                    {{ truncateText(newsItem.title, 15) }}
-                                </span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="admin-table-td-primary" :title="newsItem.title">
+                                        {{ truncateText(newsItem.title, 15) }}
+                                    </span>
+                                    <span v-if="newsItem.fb_post_id"
+                                        class="inline-flex items-center rounded-full bg-blue-50 px-1.5 py-0.5 text-[10px] font-semibold text-blue-600 ring-1 ring-inset ring-blue-500/20"
+                                        title="Auto-imported from Facebook">
+                                        FB
+                                    </span>
+                                </div>
                             </td>
                             <td class="admin-table-td">
                                 <span :title="newsItem.content">{{ truncateText(newsItem.content, 15) }}</span>

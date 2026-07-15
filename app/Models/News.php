@@ -16,6 +16,7 @@ class News extends Model
         'published_at',
         'featured_image',
         'featured_image_2',
+        'fb_post_id',
     ];
 
     protected $casts = [
