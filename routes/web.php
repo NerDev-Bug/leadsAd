@@ -66,4 +66,9 @@ Route::post('/access-logout', [AccessRegisterController::class, 'logout'])->name
 Route::get('/archive-news', [ArchiveNewsController::class, 'index'])->middleware('auth')->name('archive.news.index');
 Route::post('/archive-news/{archiveNews}/restore', [ArchiveNewsController::class, 'restore'])->middleware('auth')->name('archive.news.restore');
 
+
+Route::get('/settings', function () {
+    return Inertia::render('SubPage/Settings');
+})->middleware('auth')->name('settings');
+
 // require __DIR__.'/auth.php';

@@ -163,6 +163,10 @@ const CareersIcon = () => h('svg', iconProps, [
 const DirectoriesIcon = () => h('svg', iconProps, [
     h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M3.75 6.75h16.5m-16.5 3.75h16.5m-16.5 3.75h16.5m-16.5 3.75h16.5M9 6.75v10.5M15 6.75v10.5' }),
 ]);
+const SettingsIcon = () => h('svg', iconProps, [
+    h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M12 6.75a5.25 5.25 0 100 10.5 5.25 5.25 0 000-10.5zM19.5 12a7.5 7.5 0 01-15 0' }),
+    h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M12 3v1.5M12 19.5V21M4.219 4.219l1.061 1.061M18.72 18.72l1.061 1.061M3 12h1.5M19.5 12H21M4.219 19.781l1.061-1.061M18.72 5.28l1.061-1.061' }),
+]);
 
 const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: DashboardIcon },
@@ -170,6 +174,7 @@ const navItems = [
     { href: '/news', label: 'News', icon: NewsIcon },
     { href: '/careers', label: 'Careers', icon: CareersIcon },
     { href: '/directories', label: 'Directories', icon: DirectoriesIcon },
+    { href: '/settings', label: 'Settings', icon: SettingsIcon },
 ];
 
 function isActive(path) {
