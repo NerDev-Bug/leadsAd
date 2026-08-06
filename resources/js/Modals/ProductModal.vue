@@ -4,7 +4,7 @@
         title="Add Product"
         subtitle="Fill in the product details below"
         icon="add"
-        size="lg"
+        size="xl"
         @update:model-value="$emit('update:modelValue', $event)"
     >
         <form @submit.prevent="submitForm">
@@ -21,23 +21,21 @@
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-form-label">Dosage<span class="admin-form-required">*</span></label>
-                    <div v-for="(dosage, idx) in form.dosages" :key="idx" class="admin-form-array-row">
-                        <input v-model="form.dosages[idx]" @input="handleArrayInput('dosages', idx)" type="text"
-                            class="admin-form-input" required />
-                        <button type="button" @click="removeDosage(idx)" v-if="form.dosages.length > 1"
-                            class="admin-form-remove-btn">&minus;</button>
-                    </div>
-                    <button type="button" @click="addDosage" class="admin-form-add-btn">+ Add Dosage</button>
+                    <RichTextEditor
+                        v-model="form.dosage"
+                        placeholder="Enter dosage details (use bullet list for each item)..."
+                        min-height="120px"
+                    />
+                    <p class="admin-form-hint">Use the toolbar to format text and create bullet or numbered lists.</p>
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-form-label">Target<span class="admin-form-required">*</span></label>
-                    <div v-for="(target, idx) in form.targets" :key="idx" class="admin-form-array-row">
-                        <input v-model="form.targets[idx]" @input="handleArrayInput('targets', idx)" type="text"
-                            class="admin-form-input" required />
-                        <button type="button" @click="removeTarget(idx)" v-if="form.targets.length > 1"
-                            class="admin-form-remove-btn">&minus;</button>
-                    </div>
-                    <button type="button" @click="addTarget" class="admin-form-add-btn">+ Add Target</button>
+                    <RichTextEditor
+                        v-model="form.target"
+                        placeholder="Enter target crops (use bullet list for each item)..."
+                        min-height="120px"
+                    />
+                    <p class="admin-form-hint">Use the toolbar to format text and create bullet or numbered lists.</p>
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-form-label">Category<span class="admin-form-required">*</span></label>
@@ -73,7 +71,7 @@
                     <label class="admin-form-label">Product Name Image<span class="admin-form-required">*</span></label>
                     <input type="file" @change="onFileChange($event, 2)"
                         :class="['admin-form-file', image2Error ? 'admin-form-file-error' : '']"
-                        accept=".jpg,.jpeg,.png" />
+                        required accept=".jpg,.jpeg,.png" />
                     <p v-if="image2Error" class="admin-form-error">{{ image2Error }}</p>
                 </div>
             </div>
@@ -90,6 +88,16 @@ import { ref, watch, defineProps, defineEmits } from 'vue';
 import { router } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 import AdminModal from '@/Components/Admin/AdminModal.vue';
+import RichTextEditor from '@/Components/Admin/RichTextEditor.vue';
+import { isQualificationsEmpty, normalizeQualifications } from '@/utils/qualifications';
+
+function formatValidationErrors(errors) {
+    if (!errors || typeof errors !== 'object') {
+        return 'Failed to add product. Please check your input.';
+    }
+
+    return Object.values(errors).flat().join('\n');
+}
 
 const props = defineProps({
     modelValue: Boolean
@@ -100,8 +108,8 @@ const form = ref({
     type: '',
     description: '',
     features: '',
-    dosages: [''],
-    targets: [''],
+    dosage: '',
+    target: '',
     category: '',
     image1: null,
     image2: null,
@@ -116,8 +124,8 @@ const resetForm = () => {
         type: '',
         description: '',
         features: '',
-        dosages: [''],
-        targets: [''],
+        dosage: '',
+        target: '',
         category: '',
         image1: null,
         image2: null,
@@ -154,11 +162,6 @@ function onFileChange(event, imgNum) {
     }
 }
 
-const addTarget = () => { form.value.targets.push(''); };
-const removeTarget = (idx) => { if (form.value.targets.length > 1) form.value.targets.splice(idx, 1); };
-const addDosage = () => { form.value.dosages.push(''); };
-const removeDosage = (idx) => { if (form.value.dosages.length > 1) form.value.dosages.splice(idx, 1); };
-
 function capitalizeFirstLetter(str) {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -167,22 +170,37 @@ function capitalizeFirstLetter(str) {
 function handleInput(field) {
     form.value[field] = capitalizeFirstLetter(form.value[field]);
 }
-function handleArrayInput(field, idx) {
-    form.value[field][idx] = capitalizeFirstLetter(form.value[field][idx]);
-}
 
 async function submitForm() {
+    if (isQualificationsEmpty(form.value.dosage)) {
+        Swal.fire({ title: 'Required!', text: 'Please enter dosage details.', icon: 'warning', confirmButtonColor: '#057A31' });
+        return;
+    }
+
+    if (isQualificationsEmpty(form.value.target)) {
+        Swal.fire({ title: 'Required!', text: 'Please enter target details.', icon: 'warning', confirmButtonColor: '#057A31' });
+        return;
+    }
+
+    if (!form.value.image1) {
+        Swal.fire({ title: 'Required!', text: 'Please select a product image.', icon: 'warning', confirmButtonColor: '#057A31' });
+        return;
+    }
+
+    if (!form.value.image2) {
+        Swal.fire({ title: 'Required!', text: 'Please select a product name image.', icon: 'warning', confirmButtonColor: '#057A31' });
+        return;
+    }
+
     form.value.processing = true;
     form.value.description = capitalizeFirstLetter(form.value.description);
     form.value.features = capitalizeFirstLetter(form.value.features);
-    form.value.dosages = form.value.dosages.map(capitalizeFirstLetter);
-    form.value.targets = form.value.targets.map(capitalizeFirstLetter);
     const formData = new FormData();
     formData.append('type', form.value.type);
     formData.append('description', form.value.description);
     formData.append('features', form.value.features);
-    formData.append('dosage', form.value.dosages.join(', '));
-    formData.append('target', form.value.targets.join(', '));
+    formData.append('dosage', normalizeQualifications(form.value.dosage));
+    formData.append('target', normalizeQualifications(form.value.target));
     formData.append('category', form.value.category);
     if (form.value.image1) formData.append('image1', form.value.image1);
     if (form.value.image2) formData.append('image2', form.value.image2);
@@ -201,10 +219,10 @@ async function submitForm() {
                 router.visit('/products');
             });
         },
-        onError: () => {
+        onError: (errors) => {
             Swal.fire({
                 title: 'Error!',
-                text: 'Failed to add product. Please check your input.',
+                text: formatValidationErrors(errors),
                 icon: 'error',
                 confirmButtonColor: '#d33',
             });

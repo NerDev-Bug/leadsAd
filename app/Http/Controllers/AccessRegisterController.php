@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AccessRegister;
+use App\Services\UserSessionService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Hash;
@@ -103,17 +104,40 @@ class AccessRegisterController extends Controller
         }
 
         Auth::login($user);
-        $request->session()->regenerate(); // ✅ important
+        $request->session()->regenerate();
+        UserSessionService::recordLogin($user, $request);
 
-        // Return a 204 No Content response for Inertia
         return redirect()->route('dashboard');
     }
 
     public function logout(Request $request)
     {
+        UserSessionService::logoutCurrent($request);
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $validated = $request->validate([
+            'current_password' => 'required',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        $user = $request->user();
+
+        if (!$user || !Hash::check($validated['current_password'], $user->password)) {
+            return back()->withErrors([
+                'current_password' => 'The current password is incorrect.',
+            ]);
+        }
+
+        $user->update([
+            'password' => bcrypt($validated['password']),
+        ]);
+
+        return back();
     }
 }

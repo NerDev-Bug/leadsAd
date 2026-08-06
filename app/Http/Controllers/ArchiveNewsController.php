@@ -25,7 +25,19 @@ class ArchiveNewsController extends Controller
             $search = '';
         }
 
-        $archived = $query->paginate($perPage)->appends(['search' => $search]);
+        if ($request->filled('filter')) {
+            match ($request->input('filter')) {
+                'today' => $query->whereDate('published_at', today()),
+                'week' => $query->where('published_at', '>=', now()->startOfWeek()),
+                'month' => $query->where('published_at', '>=', now()->startOfMonth()),
+                default => null,
+            };
+        }
+
+        $archived = $query->paginate($perPage)->appends([
+            'search' => $search,
+            'filter' => $request->input('filter', ''),
+        ]);
 
         // Provide JSON for modal consumption or render an Inertia page if preferred
         if ($request->wantsJson()) {
@@ -58,6 +70,33 @@ class ArchiveNewsController extends Controller
             ],
             'search' => $search,
         ]);
+    }
+
+    public function destroy(ArchiveNews $archiveNews)
+    {
+        if ($archiveNews->featured_image) {
+            $path = public_path('archive_news/' . basename($archiveNews->featured_image));
+            if (is_file($path)) {
+                @unlink($path);
+            }
+        }
+
+        if ($archiveNews->featured_image_2) {
+            foreach (explode(',', $archiveNews->featured_image_2) as $img) {
+                $img = trim($img);
+                if ($img === '') {
+                    continue;
+                }
+                $path = public_path('archive_news/' . basename($img));
+                if (is_file($path)) {
+                    @unlink($path);
+                }
+            }
+        }
+
+        $archiveNews->delete();
+
+        return response()->json(['success' => true]);
     }
 
     public function restore(Request $request, ArchiveNews $archiveNews)
@@ -116,6 +155,63 @@ class ArchiveNewsController extends Controller
         return response()->json([
             'success' => true,
             'restored_id' => $news->id,
+        ]);
+    }
+
+    public function update(Request $request, ArchiveNews $archiveNews)
+    {
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'content' => 'required|string',
+            'published_at' => 'required|date',
+            'featured_image' => 'nullable|file|image|max:10240',
+            'featured_image_2' => 'nullable|file|image|max:10240',
+        ]);
+
+        $destDir = public_path('archive_news');
+        if (! is_dir($destDir)) {
+            @mkdir($destDir, 0775, true);
+        }
+
+        if ($request->hasFile('featured_image')) {
+            if ($archiveNews->featured_image) {
+                $oldPath = public_path('archive_news/' . basename($archiveNews->featured_image));
+                if (is_file($oldPath)) {
+                    @unlink($oldPath);
+                }
+            }
+
+            $file = $request->file('featured_image');
+            $filename = 'arch_' . uniqid() . '_' . $file->getClientOriginalName();
+            $file->move($destDir, $filename);
+            $validated['featured_image'] = 'archive_news/' . $filename;
+        }
+
+        if ($request->hasFile('featured_image_2')) {
+            if ($archiveNews->featured_image_2) {
+                foreach (explode(',', $archiveNews->featured_image_2) as $img) {
+                    $img = trim($img);
+                    if ($img === '') {
+                        continue;
+                    }
+                    $oldPath = public_path('archive_news/' . basename($img));
+                    if (is_file($oldPath)) {
+                        @unlink($oldPath);
+                    }
+                }
+            }
+
+            $file = $request->file('featured_image_2');
+            $filename = 'arch_' . uniqid() . '_' . $file->getClientOriginalName();
+            $file->move($destDir, $filename);
+            $validated['featured_image_2'] = 'archive_news/' . $filename;
+        }
+
+        $archiveNews->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'data' => $archiveNews->fresh(),
         ]);
     }
 

@@ -15,14 +15,12 @@
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-form-label">Content<span class="admin-form-required">*</span></label>
-                    <div v-for="(content, idx) in form.contents" :key="idx" class="mb-3">
-                        <textarea v-model="form.contents[idx]" class="admin-form-textarea" :placeholder="`Section ${idx + 1}...`" @input="capitalizeFirstLetterContent(idx)" required></textarea>
-                        <div class="mt-1 flex items-center justify-between">
-                            <button type="button" @click="removeContent(idx)" v-if="form.contents.length > 1" class="text-xs font-semibold text-red-500 hover:text-red-700">Remove</button>
-                            <span class="text-xs text-slate-400">Section {{ idx + 1 }}</span>
-                        </div>
-                    </div>
-                    <button type="button" @click="addContent" class="admin-form-add-btn">+ Add Content Section</button>
+                    <RichTextEditor
+                        v-model="form.content"
+                        placeholder="Write the article content..."
+                        min-height="200px"
+                    />
+                    <p class="admin-form-hint">Use the toolbar to format text and create bullet or numbered lists.</p>
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-form-label">Published Date</label>
@@ -59,13 +57,23 @@ import { router } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import AdminModal from '@/Components/Admin/AdminModal.vue';
+import RichTextEditor from '@/Components/Admin/RichTextEditor.vue';
+import { isQualificationsEmpty, normalizeQualifications } from '@/utils/qualifications';
+
+function formatValidationErrors(errors) {
+    if (!errors || typeof errors !== 'object') {
+        return 'Failed to add news article. Please check your input.';
+    }
+
+    return Object.values(errors).flat().join('\n');
+}
 
 const props = defineProps({ modelValue: Boolean });
 const emit = defineEmits(['update:modelValue', 'submitted']);
 
 const form = ref({
     title: '',
-    contents: [''],
+    content: '',
     published_at: '',
     featured_image: null,
     featured_image_2: null,
@@ -79,7 +87,7 @@ const featuredImages2Preview = ref(null);
 const resetForm = () => {
     form.value = {
         title: '',
-        contents: [''],
+        content: '',
         published_at: '',
         featured_image: null,
         featured_image_2: null,
@@ -97,22 +105,6 @@ watch(() => props.modelValue, (val) => {
 function capitalizeFirstLetter(field) {
     if (form.value[field] && form.value[field].length > 0) {
         form.value[field] = form.value[field].charAt(0).toUpperCase() + form.value[field].slice(1);
-    }
-}
-
-function capitalizeFirstLetterContent(idx) {
-    if (form.value.contents[idx] && form.value.contents[idx].length > 0) {
-        form.value.contents[idx] = form.value.contents[idx].charAt(0).toUpperCase() + form.value.contents[idx].slice(1);
-    }
-}
-
-function addContent() {
-    form.value.contents.push('');
-}
-
-function removeContent(idx) {
-    if (form.value.contents.length > 1) {
-        form.value.contents.splice(idx, 1);
     }
 }
 
@@ -159,15 +151,19 @@ function onFileChange2(event) {
 }
 
 async function submitForm() {
+    if (isQualificationsEmpty(form.value.content)) {
+        Swal.fire({ title: 'Required!', text: 'Please enter article content.', icon: 'warning', confirmButtonColor: '#3085d6' });
+        return;
+    }
+
     form.value.processing = true;
     if (!form.value.published_at) {
         form.value.published_at = new Date().toISOString().slice(0, 10);
     }
 
-    const combinedContent = form.value.contents.filter(c => c.trim() !== '').join(': ');
     const formData = new FormData();
     formData.append('title', form.value.title);
-    formData.append('content', combinedContent);
+    formData.append('content', normalizeQualifications(form.value.content));
     formData.append('published_at', form.value.published_at);
     if (form.value.featured_image) formData.append('featured_image', form.value.featured_image);
     if (form.value.featured_image_2) formData.append('featured_image_2', form.value.featured_image_2);
@@ -184,10 +180,10 @@ async function submitForm() {
                 confirmButtonColor: '#3085d6'
             }).then(() => router.visit('/news'));
         },
-        onError: () => {
+        onError: (errors) => {
             Swal.fire({
                 title: 'Error!',
-                text: 'Failed to add news article. Please check your input.',
+                text: formatValidationErrors(errors),
                 icon: 'error',
                 confirmButtonColor: '#d33'
             });

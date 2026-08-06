@@ -6,6 +6,8 @@ use App\Http\Controllers\CareerController;
 use App\Http\Controllers\AccessRegisterController;
 use App\Http\Controllers\ArchiveNewsController;
 use App\Http\Controllers\DirectoryController;
+use App\Http\Controllers\UserSessionController;
+use App\Http\Controllers\BackupController;
 
 Route::get('/dashboard', function () {
     $productsCount = \App\Models\product::count();
@@ -61,14 +63,40 @@ Route::post('/access-registers', [AccessRegisterController::class, 'store'])->na
 Route::post('/access-register/login', [AccessRegisterController::class, 'login'])->name('access-register.login');
 
 Route::post('/access-logout', [AccessRegisterController::class, 'logout'])->name('access.logout');
+Route::put('/access-register/password', [AccessRegisterController::class, 'updatePassword'])
+    ->middleware('auth')
+    ->name('access-register.password.update');
+
+Route::get('/user-sessions', [UserSessionController::class, 'index'])
+    ->middleware('auth')
+    ->name('user-sessions.index');
+Route::delete('/user-sessions/{userSession}', [UserSessionController::class, 'destroy'])
+    ->middleware('auth')
+    ->name('user-sessions.destroy');
+Route::post('/user-sessions/logout-all', [UserSessionController::class, 'logoutAll'])
+    ->middleware('auth')
+    ->name('user-sessions.logout-all');
 
 // Archive news listing (for modal fetch; supports JSON)
 Route::get('/archive-news', [ArchiveNewsController::class, 'index'])->middleware('auth')->name('archive.news.index');
+Route::put('/archive-news/{archiveNews}', [ArchiveNewsController::class, 'update'])->middleware('auth')->name('archive.news.update');
 Route::post('/archive-news/{archiveNews}/restore', [ArchiveNewsController::class, 'restore'])->middleware('auth')->name('archive.news.restore');
+Route::delete('/archive-news/{archiveNews}', [ArchiveNewsController::class, 'destroy'])->middleware('auth')->name('archive.news.destroy');
 
 
 Route::get('/settings', function () {
     return Inertia::render('SubPage/Settings');
 })->middleware('auth')->name('settings');
+
+Route::get('/backups', [BackupController::class, 'index'])->middleware('auth')->name('backups.index');
+Route::post('/backups', [BackupController::class, 'store'])->middleware('auth')->name('backups.store');
+Route::get('/backups/{filename}/download', [BackupController::class, 'download'])
+    ->middleware('auth')
+    ->where('filename', 'backup_[0-9]{4}_[0-9]{2}_[0-9]{2}_[0-9]{6}\.sql')
+    ->name('backups.download');
+Route::delete('/backups/{filename}', [BackupController::class, 'destroy'])
+    ->middleware('auth')
+    ->where('filename', 'backup_[0-9]{4}_[0-9]{2}_[0-9]{2}_[0-9]{6}\.sql')
+    ->name('backups.destroy');
 
 // require __DIR__.'/auth.php';

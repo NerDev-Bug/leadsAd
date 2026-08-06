@@ -35,14 +35,12 @@
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-form-label">Qualifications<span class="admin-form-required">*</span></label>
-                    <div v-for="(qual, idx) in form.qualifications" :key="idx" class="mb-3">
-                        <textarea v-model="form.qualifications[idx]" @input="handleQualificationInput(idx)" class="admin-form-textarea" :placeholder="`Qualification ${idx + 1}...`" required></textarea>
-                        <div class="mt-1 flex items-center justify-between">
-                            <button type="button" @click="removeQualification(idx)" v-if="form.qualifications.length > 1" class="text-xs font-semibold text-red-500 hover:text-red-700">Remove</button>
-                            <span class="text-xs text-slate-400">#{{ idx + 1 }}</span>
-                        </div>
-                    </div>
-                    <button type="button" @click="addQualification" class="admin-form-add-btn">+ Add Qualification</button>
+                    <RichTextEditor
+                        v-model="form.qualifications"
+                        placeholder="Enter qualifications (use bullet list for each item)..."
+                        min-height="160px"
+                    />
+                    <p class="admin-form-hint">Use the toolbar to format text and create bullet or numbered lists.</p>
                 </div>
             </div>
             <button type="submit" class="admin-modal-submit" :disabled="form.processing">
@@ -58,6 +56,8 @@ import { ref, defineProps, defineEmits, watch } from 'vue';
 import { router } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
 import AdminModal from '@/Components/Admin/AdminModal.vue';
+import RichTextEditor from '@/Components/Admin/RichTextEditor.vue';
+import { isQualificationsEmpty, normalizeQualifications, qualificationsToHtml } from '@/utils/qualifications';
 
 const props = defineProps({
     modelValue: Boolean,
@@ -71,7 +71,7 @@ const form = ref({
     details: '',
     location: '',
     job_description: '',
-    qualifications: [''],
+    qualifications: '',
     processing: false
 });
 
@@ -82,7 +82,7 @@ const resetForm = () => {
         details: '',
         location: '',
         job_description: '',
-        qualifications: [''],
+        qualifications: '',
         processing: false
     };
 };
@@ -90,19 +90,12 @@ const resetForm = () => {
 const populateForm = (career) => {
     if (!career) return;
 
-    // Split qualifications back into array (if saved as string with ": ")
-    let qualificationSections = [''];
-    if (career.qualifications) {
-        qualificationSections = career.qualifications.split(': ').map(s => s.trim()).filter(s => s !== '');
-    }
-    if (qualificationSections.length === 0) qualificationSections = [''];
-
     form.value = {
         employment_type: career.employment_type || '',
         position: career.position || '',
         details: career.details || '',
         location: career.location || '',
-        qualifications: qualificationSections,
+        qualifications: qualificationsToHtml(career.qualifications),
         job_description: career.job_description || '',
         processing: false
     };
@@ -122,15 +115,6 @@ watch(() => props.modelValue, (val) => {
     }
 });
 
-function addQualification() {
-    form.value.qualifications.push('');
-}
-function removeQualification(idx) {
-    if (form.value.qualifications.length > 1) {
-        form.value.qualifications.splice(idx, 1);
-    }
-}
-
 function capitalizeFirst(str) {
     if (!str) return '';
     return str.charAt(0).toUpperCase() + str.slice(1);
@@ -139,19 +123,18 @@ function capitalizeFirst(str) {
 function handleInput(field) {
     form.value[field] = capitalizeFirst(form.value[field]);
 }
-function handleQualificationInput(idx) {
-    form.value.qualifications[idx] = capitalizeFirst(form.value.qualifications[idx]);
-}
 
 async function submitForm() {
-    form.value.processing = true;
+    if (isQualificationsEmpty(form.value.qualifications)) {
+        Swal.fire({ title: 'Required!', text: 'Please enter at least one qualification.', icon: 'warning', confirmButtonColor: '#3085d6' });
+        return;
+    }
 
-    // Combine qualifications into a single string separated by colons
-    const combinedQualifications = form.value.qualifications.filter(q => q.trim() !== '').join(': ');
+    form.value.processing = true;
 
     const payload = {
         ...form.value,
-        qualifications: combinedQualifications
+        qualifications: normalizeQualifications(form.value.qualifications)
     };
 
     router.put(`/careers/${props.career.id}`, payload, {

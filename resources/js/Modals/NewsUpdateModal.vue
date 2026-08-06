@@ -15,14 +15,12 @@
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-form-label">Content<span class="admin-form-required">*</span></label>
-                    <div v-for="(content, idx) in form.contents" :key="idx" class="mb-3">
-                        <textarea v-model="form.contents[idx]" class="admin-form-textarea" :placeholder="`Section ${idx + 1}...`" @input="capitalizeFirstLetterContent(idx)" required></textarea>
-                        <div class="mt-1 flex items-center justify-between">
-                            <button type="button" @click="removeContent(idx)" v-if="form.contents.length > 1" class="text-xs font-semibold text-red-500 hover:text-red-700">Remove</button>
-                            <span class="text-xs text-slate-400">Section {{ idx + 1 }}</span>
-                        </div>
-                    </div>
-                    <button type="button" @click="addContent" class="admin-form-add-btn">+ Add Content Section</button>
+                    <RichTextEditor
+                        v-model="form.content"
+                        placeholder="Write the article content..."
+                        min-height="200px"
+                    />
+                    <p class="admin-form-hint">Use the toolbar to format text and create bullet or numbered lists.</p>
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-form-label">Published Date<span class="admin-form-required">*</span></label>
@@ -66,6 +64,8 @@ import { router } from '@inertiajs/vue3'
 import Swal from 'sweetalert2'
 import VueDatePicker from '@vuepic/vue-datepicker'
 import AdminModal from '@/Components/Admin/AdminModal.vue'
+import RichTextEditor from '@/Components/Admin/RichTextEditor.vue'
+import { isQualificationsEmpty, normalizeQualifications, qualificationsToHtml } from '@/utils/qualifications'
 
 const props = defineProps({
     modelValue: Boolean,
@@ -79,7 +79,7 @@ const emit = defineEmits(['update:modelValue', 'submitted'])
 
 const form = ref({
     title: '',
-    contents: [''],
+    content: '',
     published_at: '',
     featured_image: null,
     currentFeaturedImage: '',
@@ -96,7 +96,7 @@ const featuredImage2Preview = ref(null)
 const resetForm = () => {
     form.value = {
         title: '',
-        contents: [''],
+        content: '',
         published_at: '',
         featured_image: null,
         currentFeaturedImage: '',
@@ -112,15 +112,9 @@ const resetForm = () => {
 const populateForm = (newsItem) => {
     if (!newsItem) return
 
-    let contents = ['']
-    if (newsItem.content) {
-        contents = newsItem.content.split(': ').map((c) => c.trim()).filter((c) => c !== '')
-    }
-    if (contents.length === 0) contents = ['']
-
     form.value = {
         title: newsItem.title || '',
-        contents,
+        content: qualificationsToHtml(newsItem.content),
         published_at: newsItem.published_at
             ? new Date(newsItem.published_at).toISOString().slice(0, 10)
             : '',
@@ -139,17 +133,6 @@ watch(() => props.modelValue, (val) => !val && resetForm())
 function capitalizeFirstLetter(field) {
     const val = form.value[field]
     if (val && val.length > 0) form.value[field] = val.charAt(0).toUpperCase() + val.slice(1)
-}
-function capitalizeFirstLetterContent(idx) {
-    const val = form.value.contents[idx]
-    if (val && val.length > 0)
-        form.value.contents[idx] = val.charAt(0).toUpperCase() + val.slice(1)
-}
-function addContent() {
-    form.value.contents.push('')
-}
-function removeContent(idx) {
-    if (form.value.contents.length > 1) form.value.contents.splice(idx, 1)
 }
 
 // Featured Image 1
@@ -195,13 +178,17 @@ async function submitForm() {
         return
     }
 
+    if (isQualificationsEmpty(form.value.content)) {
+        Swal.fire({ title: 'Required!', text: 'Please enter article content.', icon: 'warning', confirmButtonColor: '#3085d6' })
+        return
+    }
+
     form.value.processing = true
 
-    const combinedContent = form.value.contents.filter((c) => c.trim() !== '').join(': ')
     const formData = new FormData()
     formData.append('_method', 'PUT')
     formData.append('title', form.value.title)
-    formData.append('content', combinedContent)
+    formData.append('content', normalizeQualifications(form.value.content))
     formData.append('published_at', form.value.published_at)
 
     if (form.value.featured_image)
