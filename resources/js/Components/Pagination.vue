@@ -54,11 +54,15 @@ const props = defineProps({
     },
     routeName: {
         type: String,
-        required: true,
+        default: '',
     },
     extraParams: {
         type: Object,
         default: () => ({}),
+    },
+    navigate: {
+        type: Boolean,
+        default: true,
     },
 });
 
@@ -101,11 +105,13 @@ const goToPage = (page) => {
         return;
     }
 
-    router.get(props.routeName, { ...props.extraParams, page }, {
-        preserveState: true,
-        preserveScroll: true,
-        replace: true,
-    });
+    if (props.navigate && props.routeName) {
+        router.get(props.routeName, { ...props.extraParams, page }, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    }
 
     emit('page-changed', page);
 };

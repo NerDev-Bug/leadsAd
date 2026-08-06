@@ -21,8 +21,11 @@
         "vue": "^3.4.0"
     },
     "dependencies": {
+        "@lucide/vue": "^1.25.0",
         "@vuepic/vue-datepicker": "9.0.3",
+        "@vueup/vue-quill": "^1.5.5",
         "chart.js": "^4.5.1",
+        "quill": "^2.0.3",
         "sweetalert2": "^11.22.2"
     }
 }

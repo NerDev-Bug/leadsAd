@@ -63,14 +63,14 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'description' => 'required|string|max:255',
-            'features' => 'required|string|max:255',
-            'dosage' => 'required|string|max:255',
-            'target' => 'required|string|max:255',
+            'description' => 'required|string',
+            'features' => 'required|string',
+            'dosage' => 'required|string',
+            'target' => 'required|string',
             'category' => 'required|string',
             'type' => 'required|string',
-            'image1' => 'nullable|file|image|max:2048',
-            'image2' => 'nullable|file|image|max:2048',
+            'image1' => 'required|file|image|max:51200',
+            'image2' => 'required|file|image|max:51200',
         ]);
 
         if ($request->hasFile('image1')) {
@@ -116,8 +116,8 @@ class ProductController extends Controller
         $validated = $request->validate([
             'description' => 'required|string',
             'features' => 'required|string',
-            'dosage' => 'required|string|max:2555',
-            'target' => 'required|string|max:2555',
+            'dosage' => 'required|string',
+            'target' => 'required|string',
             'category' => 'required|string',
             'type' => 'required|string',
             'image1' => 'nullable|file|image|max:51200',

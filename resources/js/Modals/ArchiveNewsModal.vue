@@ -50,6 +50,7 @@
 import { ref, watch, nextTick } from 'vue';
 import Swal from 'sweetalert2';
 import AdminModal from '@/Components/Admin/AdminModal.vue';
+import { csrfHeaders } from '@/utils/csrf';
 
 const props = defineProps({ modelValue: { type: Boolean, default: false } });
 const emit = defineEmits(['update:modelValue']);
@@ -79,21 +80,13 @@ async function fetchArchived() {
     }
 }
 
-function getCsrfToken() {
-    const el = document.querySelector('meta[name="csrf-token"]');
-    return el ? el.getAttribute('content') : '';
-}
-
 async function restore(item) {
     try {
         retrievingId.value = item.id;
         const res = await fetch(`/archive-news/${item.id}/restore`, {
             method: 'POST',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                Accept: 'application/json',
-                'X-CSRF-TOKEN': getCsrfToken(),
-            },
+            headers: csrfHeaders(),
+            credentials: 'same-origin',
         });
         if (!res.ok) throw new Error('Restore failed');
 

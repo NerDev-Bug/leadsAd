@@ -4,7 +4,7 @@
         title="Import Directories CSV"
         subtitle="Upload, validate, review, and save directory rows"
         icon="add"
-        size="xl"
+        size="2xl"
         @update:model-value="$emit('update:modelValue', $event)"
     >
         <div class="space-y-6">

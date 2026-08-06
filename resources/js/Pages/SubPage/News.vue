@@ -4,7 +4,7 @@ import { ref, computed, watch } from 'vue';
 import NewsModal from '@/Modals/NewsModal.vue';
 import NewsUpdateModal from '@/Modals/NewsUpdateModal.vue';
 import NewsDeleteModal from '@/Modals/NewsDeleteModal.vue';
-import ArchiveNewsModal from '@/Modals/ArchiveNewsModal.vue';
+// import ArchiveNewsModal from '@/Modals/ArchiveNewsModal.vue';
 import Pagination from '@/Components/Pagination.vue';
 import TableActions from '@/Components/Admin/TableActions.vue';
 import TableEmpty from '@/Components/Admin/TableEmpty.vue';
@@ -14,18 +14,17 @@ import { usePage, router } from '@inertiajs/vue3';
 const isNewsModalOpen = ref(false);
 const isNewsUpdateModalOpen = ref(false);
 const isNewsDeleteModalOpen = ref(false);
-const isArchiveModalOpen = ref(false);
+// const isArchiveModalOpen = ref(false);
 const selectedNews = ref(null);
 
 function openNewsModal() {
     isNewsModalOpen.value = true;
 }
-function openArchiveModal() {
-    isArchiveModalOpen.value = true;
-}
+// function openArchiveModal() {
+//     isArchiveModalOpen.value = true;
+// }
 
 function handleNewsSubmit(news) {
-    // TODO: handle news submission (e.g., send to backend)
     isNewsModalOpen.value = false;
 }
 
@@ -70,7 +69,6 @@ function deleteNews(newsItem) {
 }
 
 function handleNewsDeleted(deletedNews) {
-    // News will be automatically removed from the list due to Inertia refresh
     console.log('News deleted:', deletedNews);
 }
 
@@ -90,7 +88,7 @@ watch(search, (newVal, oldVal) => {
             { search: newVal },
             { preserveState: true, replace: true }
         );
-    }, 2000); // 2 seconds debounce
+    }, 2000);
 });
 </script>
 
@@ -113,10 +111,10 @@ watch(search, (newVal, oldVal) => {
                         @click="openNewsModal">
                         + Add News
                     </button>
-                    <button class="w-full sm:w-auto admin-btn-secondary sm:ml-0 sm:mt-0 mt-2"
+                    <!-- <button class="w-full sm:w-auto admin-btn-secondary sm:ml-0 sm:mt-0 mt-2"
                         @click="openArchiveModal">
                         Archive
-                    </button>
+                    </button> -->
                 </div>
             </div>
             <div class="admin-table-wrap overflow-x-auto">
@@ -220,6 +218,6 @@ watch(search, (newVal, oldVal) => {
         <NewsModal v-model="isNewsModalOpen" @submitted="handleNewsSubmit" />
         <NewsUpdateModal v-model="isNewsUpdateModalOpen" :news="selectedNews" @submitted="handleNewsSubmit" />
         <NewsDeleteModal v-model="isNewsDeleteModalOpen" :news="selectedNews" @deleted="handleNewsDeleted" />
-        <ArchiveNewsModal v-model="isArchiveModalOpen" />
+        <!-- <ArchiveNewsModal v-model="isArchiveModalOpen" /> -->
     </SidebarLayout>
 </template>

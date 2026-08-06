@@ -15,6 +15,27 @@
         @apply w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm text-slate-700 shadow-sm transition placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500/20 sm:w-64;
     }
 
+    .admin-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgb(5 122 49 / 0.75) rgb(241 245 249);
+    }
+
+    .admin-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .admin-scrollbar::-webkit-scrollbar-track {
+        @apply rounded-full bg-slate-100;
+    }
+
+    .admin-scrollbar::-webkit-scrollbar-thumb {
+        @apply rounded-full bg-brand-600/70;
+    }
+
+    .admin-scrollbar::-webkit-scrollbar-thumb:hover {
+        @apply bg-brand-600;
+    }
+
     .admin-btn-primary {
         @apply inline-flex items-center justify-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-700 hover:shadow-md;
     }
@@ -226,6 +247,60 @@
 
     .admin-form-array-row {
         @apply mb-2 flex items-center gap-2;
+    }
+
+    .admin-rich-text-editor .ql-toolbar.ql-snow {
+        @apply rounded-t-xl border border-slate-200 bg-slate-50;
+    }
+
+    .admin-rich-text-editor .ql-container.ql-snow {
+        @apply admin-scrollbar rounded-b-xl border border-t-0 border-slate-200 bg-white text-sm text-slate-800;
+        min-height: var(--editor-min-height, 140px);
+        max-height: var(--editor-max-height, 280px);
+        overflow-y: auto;
+    }
+
+    .admin-rich-text-editor .ql-editor {
+        min-height: var(--editor-min-height, 140px);
+        height: auto;
+        overflow-y: visible;
+    }
+
+    .admin-rich-text-editor .ql-editor.ql-blank::before {
+        @apply text-slate-400 not-italic;
+    }
+
+    .admin-rich-text-editor .ql-snow .ql-stroke {
+        stroke: #475569;
+    }
+
+    .admin-rich-text-editor .ql-snow .ql-fill {
+        fill: #475569;
+    }
+
+    .admin-rich-text-editor .ql-snow .ql-picker {
+        @apply text-slate-600;
+    }
+
+    .admin-rich-text-editor .ql-snow.ql-toolbar button:hover,
+    .admin-rich-text-editor .ql-snow .ql-toolbar button:hover,
+    .admin-rich-text-editor .ql-snow.ql-toolbar button.ql-active,
+    .admin-rich-text-editor .ql-snow .ql-toolbar button.ql-active {
+        @apply text-brand-600;
+    }
+
+    .admin-rich-text-editor .ql-snow.ql-toolbar button:hover .ql-stroke,
+    .admin-rich-text-editor .ql-snow .ql-toolbar button:hover .ql-stroke,
+    .admin-rich-text-editor .ql-snow.ql-toolbar button.ql-active .ql-stroke,
+    .admin-rich-text-editor .ql-snow .ql-toolbar button.ql-active .ql-stroke {
+        stroke: #057A31;
+    }
+
+    .admin-rich-text-editor .ql-snow.ql-toolbar button:hover .ql-fill,
+    .admin-rich-text-editor .ql-snow .ql-toolbar button:hover .ql-fill,
+    .admin-rich-text-editor .ql-snow.ql-toolbar button.ql-active .ql-fill,
+    .admin-rich-text-editor .ql-snow .ql-toolbar button.ql-active .ql-fill {
+        fill: #057A31;
     }
 
     .admin-modal-submit {
