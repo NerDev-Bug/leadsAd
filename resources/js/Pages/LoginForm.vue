@@ -55,10 +55,10 @@
                 </button>
             </form>
 
-            <p class="auth-footer">
+            <!-- <p class="auth-footer">
                 Don't have an account?
                 <a href="/register" class="auth-link">Create account</a>
-            </p>
+            </p> -->
         </div>
     </div>
 </template>

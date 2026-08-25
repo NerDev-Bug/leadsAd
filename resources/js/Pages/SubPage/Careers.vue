@@ -9,6 +9,7 @@ import TableActions from '@/Components/Admin/TableActions.vue';
 import TableEmpty from '@/Components/Admin/TableEmpty.vue';
 import TableFooter from '@/Components/Admin/TableFooter.vue';
 import { usePage, router } from '@inertiajs/vue3';
+import { Plus } from '@lucide/vue';
 
 const isCareersModalOpen = ref(false);
 const isCareersUpdateModalOpen = ref(false);
@@ -105,7 +106,8 @@ watch(search, (newVal, oldVal) => {
                 />
                 <button class="w-full sm:w-auto admin-btn-primary sm:ml-0 sm:mt-0 mt-2"
                     @click="openCareersModal">
-                    + Add Career
+                    <Plus class="w-4 h-4" />
+                    Add Career
                 </button>
             </div>
             <div class="admin-table-wrap overflow-x-auto">

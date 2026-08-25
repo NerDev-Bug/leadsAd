@@ -22,9 +22,9 @@ Route::get('/dashboard', function () {
     ]);
 })->middleware('auth')->name('dashboard');
 
-Route::get('/register', function () {
-    return Inertia::render('AccessRegister');
-})->name('register');
+// Route::get('/register', function () {
+//     return Inertia::render('AccessRegister');
+// })->name('register');
 
 Route::get('/', function () {
     return Inertia::render('LoginForm');

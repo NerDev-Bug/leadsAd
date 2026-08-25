@@ -10,6 +10,7 @@ import TableActions from '@/Components/Admin/TableActions.vue';
 import TableEmpty from '@/Components/Admin/TableEmpty.vue';
 import TableFooter from '@/Components/Admin/TableFooter.vue';
 import { usePage, router } from '@inertiajs/vue3';
+import { Upload, Plus } from '@lucide/vue';
 
 const isDirectoryModalOpen = ref(false);
 const isDirectoryUpdateModalOpen = ref(false);
@@ -104,13 +105,15 @@ watch(search, (newVal) => {
                         class="w-full sm:w-auto admin-btn-secondary"
                         @click="isDirectoryImportModalOpen = true"
                     >
+                        <Upload class="w-4 h-4"/>
                         Import CSV
                     </button>
                     <button
                         class="w-full sm:w-auto admin-btn-primary"
                         @click="openDirectoryModal"
                     >
-                        + Add Directory
+                        <Plus class="w-4 h-4"/>
+                        Add Directory
                     </button>
                 </div>
             </div>

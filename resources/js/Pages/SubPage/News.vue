@@ -10,6 +10,7 @@ import TableActions from '@/Components/Admin/TableActions.vue';
 import TableEmpty from '@/Components/Admin/TableEmpty.vue';
 import TableFooter from '@/Components/Admin/TableFooter.vue';
 import { usePage, router } from '@inertiajs/vue3';
+import { Upload, Plus } from '@lucide/vue';
 
 const isNewsModalOpen = ref(false);
 const isNewsUpdateModalOpen = ref(false);
@@ -107,9 +108,14 @@ watch(search, (newVal, oldVal) => {
                     class="admin-input"
                 />
                 <div class="flex gap-2 w-full sm:w-auto">
+                    <button class="w-full sm:w-auto admin-btn-secondary sm:ml-0 sm:mt-0 mt-2">
+                        <Upload class="h-4 w-4" />
+                        AI Import
+                    </button>
                     <button class="w-full sm:w-auto admin-btn-primary sm:ml-0 sm:mt-0 mt-2"
                         @click="openNewsModal">
-                        + Add News
+                        <Plus class="w-4 h-4"/>
+                        Add News
                     </button>
                     <!-- <button class="w-full sm:w-auto admin-btn-secondary sm:ml-0 sm:mt-0 mt-2"
                         @click="openArchiveModal">

@@ -9,6 +9,7 @@ import TableActions from '@/Components/Admin/TableActions.vue';
 import TableEmpty from '@/Components/Admin/TableEmpty.vue';
 import TableFooter from '@/Components/Admin/TableFooter.vue';
 import { usePage, router } from '@inertiajs/vue3';
+import { Plus } from '@lucide/vue';
 
 const isProductModalOpen = ref(false);
 const isProductUpdateModalOpen = ref(false);
@@ -90,7 +91,8 @@ watch(search, (newVal, oldVal) => {
                     class="admin-input" />
                 <button class="w-full sm:w-auto admin-btn-primary sm:ml-0 sm:mt-0 mt-2"
                     @click="openProductModal">
-                    + Add Product
+                    <Plus class="w-4 h-4" />
+                    Add Product
                 </button>
             </div>
             <div class="admin-table-wrap overflow-x-auto">
