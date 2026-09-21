@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\News;
 use App\Models\ArchiveNews;
+use App\Support\HtmlSanitizer;
+use App\Support\SecureUpload;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class NewsController extends Controller
 {
@@ -64,23 +65,19 @@ class NewsController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'published_at' => 'required|date',
-            'featured_image' => 'nullable|file|image|max:10240', // 10MB max
-            'featured_image_2' => 'nullable|file|image|max:10240', // 10MB max
+            'featured_image' => 'nullable|file|image|max:10240',
+            'featured_image_2' => 'nullable|file|image|max:10240',
         ]);
 
-        // Handle featured_image (single)
+        $validated['content'] = HtmlSanitizer::clean($validated['content']);
+
         if ($request->hasFile('featured_image')) {
-            $file = $request->file('featured_image');
-            $filename = uniqid() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('news_image'), $filename);
+            $filename = SecureUpload::storeImage($request->file('featured_image'), 'news_image');
             $validated['featured_image'] = 'news/' . $filename;
         }
 
-        // Handle featured_image_2 (single)
         if ($request->hasFile('featured_image_2')) {
-            $file = $request->file('featured_image_2');
-            $filename = uniqid() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('news_image'), $filename);
+            $filename = SecureUpload::storeImage($request->file('featured_image_2'), 'news_image');
             $validated['featured_image_2'] = 'news/' . $filename;
         }
 
@@ -88,7 +85,6 @@ class NewsController extends Controller
 
         return redirect('/news')->with('success', 'News article added successfully!');
     }
-
 
     /**
      * Display the specified resource.
@@ -115,36 +111,22 @@ class NewsController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'required|string',
             'published_at' => 'required|date',
-            'featured_image' => 'nullable|file|image|max:10240',   // 10MB max
-            'featured_image_2' => 'nullable|file|image|max:10240', // 10MB max
+            'featured_image' => 'nullable|file|image|max:10240',
+            'featured_image_2' => 'nullable|file|image|max:10240',
         ]);
 
-        // Handle featured_image (single)
-        if ($request->hasFile('featured_image')) {
-            // Delete old image if exists
-            if ($news->featured_image) {
-                $filename = str_replace('news/', '', $news->featured_image);
-                @unlink(public_path('news_image/' . $filename));
-            }
+        $validated['content'] = HtmlSanitizer::clean($validated['content']);
 
-            $file = $request->file('featured_image');
-            $filename = uniqid() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('news_image'), $filename);
+        if ($request->hasFile('featured_image')) {
+            SecureUpload::deleteFromPublic('news_image', $news->featured_image);
+            $filename = SecureUpload::storeImage($request->file('featured_image'), 'news_image');
             $validated['featured_image'] = 'news/' . $filename;
         }
 
-        // Handle featured_image_2 (now single)
         if ($request->hasFile('featured_image_2')) {
-            // Delete old image if exists
-            if ($news->featured_image_2) {
-                $filename = str_replace('news/', '', $news->featured_image_2);
-                @unlink(public_path('news_image/' . $filename));
-            }
-
-            $file2 = $request->file('featured_image_2');
-            $filename2 = uniqid() . '_' . $file2->getClientOriginalName();
-            $file2->move(public_path('news_image'), $filename2);
-            $validated['featured_image_2'] = 'news/' . $filename2;
+            SecureUpload::deleteFromPublic('news_image', $news->featured_image_2);
+            $filename = SecureUpload::storeImage($request->file('featured_image_2'), 'news_image');
+            $validated['featured_image_2'] = 'news/' . $filename;
         }
 
         $news->update($validated);
@@ -152,25 +134,23 @@ class NewsController extends Controller
         return redirect('/news')->with('success', 'News article updated successfully!');
     }
 
-
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(News $news)
     {
-        // Ensure archive directory exists
         $archiveDir = public_path('archive_news');
         if (!is_dir($archiveDir)) {
             @mkdir($archiveDir, 0775, true);
         }
 
-        // Move images to archive_news and build archived paths
         $archivedFeatured = null;
         if ($news->featured_image) {
-            $filename = str_replace('news/', '', $news->featured_image);
+            $filename = basename($news->featured_image);
             $sourcePath = public_path('news_image/' . $filename);
             $base = $this->stripCyclePrefix($filename);
-            $targetFilename = 'arch_' . uniqid() . '_' . $base;
+            $extension = pathinfo($base, PATHINFO_EXTENSION) ?: 'jpg';
+            $targetFilename = 'arch_' . bin2hex(random_bytes(8)) . '.' . strtolower($extension);
             $targetPath = $archiveDir . DIRECTORY_SEPARATOR . $targetFilename;
             if (is_file($sourcePath)) {
                 @rename($sourcePath, $targetPath);
@@ -182,11 +162,14 @@ class NewsController extends Controller
         if ($news->featured_image_2) {
             $archivedList = [];
             foreach (explode(',', $news->featured_image_2) as $oldImage) {
-                $filename = str_replace('news/', '', trim($oldImage));
-                if ($filename === '') continue;
+                $filename = basename(trim($oldImage));
+                if ($filename === '') {
+                    continue;
+                }
                 $sourcePath = public_path('news_image/' . $filename);
                 $base = $this->stripCyclePrefix($filename);
-                $targetFilename = 'arch_' . uniqid() . '_' . $base;
+                $extension = pathinfo($base, PATHINFO_EXTENSION) ?: 'jpg';
+                $targetFilename = 'arch_' . bin2hex(random_bytes(8)) . '.' . strtolower($extension);
                 $targetPath = $archiveDir . DIRECTORY_SEPARATOR . $targetFilename;
                 if (is_file($sourcePath)) {
                     @rename($sourcePath, $targetPath);
@@ -198,7 +181,6 @@ class NewsController extends Controller
             }
         }
 
-        // Store archived record
         ArchiveNews::create([
             'original_news_id' => $news->id,
             'title' => $news->title,
@@ -208,7 +190,6 @@ class NewsController extends Controller
             'featured_image_2' => $archivedImage2,
         ]);
 
-        // Delete original record
         $news->delete();
 
         return redirect('/news')->with('success', 'News article archived successfully!');
@@ -219,7 +200,6 @@ class NewsController extends Controller
      */
     private function stripCyclePrefix(string $filename): string
     {
-        // Repeat until no more prefixes
         while (preg_match('/^(arch|rest)_[^_]+_(.+)$/', $filename, $m)) {
             $filename = $m[2];
         }

@@ -18,7 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\EnsureActiveUserSession::class,
         ]);
 
-        //
+        $middleware->alias([
+            'role' => \App\Http\Middleware\EnsureUserHasRole::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Custom 404 handler

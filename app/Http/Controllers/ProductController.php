@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\product;
+use App\Support\SecureUpload;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-        /**
+    /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
@@ -15,7 +16,6 @@ class ProductController extends Controller
         $perPage = 15;
         $query = product::orderBy('created_at', 'desc');
 
-        // Search logic
         if ($request->filled('search')) {
             $search = $request->input('search');
             $query->where(function ($q) use ($search) {
@@ -49,17 +49,11 @@ class ProductController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -74,43 +68,29 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image1')) {
-            $file = $request->file('image1');
-            $filename = uniqid() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('products_image'), $filename);
+            $filename = SecureUpload::storeImage($request->file('image1'), 'products_image');
             $validated['image1'] = 'products/' . $filename;
         }
         if ($request->hasFile('image2')) {
-            $file = $request->file('image2');
-            $filename = uniqid() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('products_image'), $filename);
+            $filename = SecureUpload::storeImage($request->file('image2'), 'products_image');
             $validated['image2'] = 'products/' . $filename;
         }
 
-        $product = product::create($validated);
+        product::create($validated);
 
-        // Redirect to products page with a flash message
         return redirect('/products')->with('success', 'Product added successfully!');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(product $product)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(product $product)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, product $product)
     {
         $validated = $request->validate([
@@ -124,28 +104,15 @@ class ProductController extends Controller
             'image2' => 'nullable|file|image|max:51200',
         ]);
 
-        // Handle image updates
         if ($request->hasFile('image1')) {
-            // Delete old image if exists
-            if ($product->image1) {
-                $filename = str_replace('products/', '', $product->image1);
-                @unlink(public_path('products_image/' . $filename));
-            }
-            $file = $request->file('image1');
-            $filename = uniqid() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('products_image'), $filename);
+            SecureUpload::deleteFromPublic('products_image', $product->image1);
+            $filename = SecureUpload::storeImage($request->file('image1'), 'products_image');
             $validated['image1'] = 'products/' . $filename;
         }
 
         if ($request->hasFile('image2')) {
-            // Delete old image if exists
-            if ($product->image2) {
-                $filename = str_replace('products/', '', $product->image2);
-                @unlink(public_path('products_image/' . $filename));
-            }
-            $file = $request->file('image2');
-            $filename = uniqid() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('products_image'), $filename);
+            SecureUpload::deleteFromPublic('products_image', $product->image2);
+            $filename = SecureUpload::storeImage($request->file('image2'), 'products_image');
             $validated['image2'] = 'products/' . $filename;
         }
 
@@ -154,20 +121,10 @@ class ProductController extends Controller
         return redirect('/products')->with('success', 'Product updated successfully!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(product $product)
     {
-        // Delete associated images
-        if ($product->image1) {
-            $filename = str_replace('products/', '', $product->image1);
-            @unlink(public_path('products_image/' . $filename));
-        }
-        if ($product->image2) {
-            $filename = str_replace('products/', '', $product->image2);
-            @unlink(public_path('products_image/' . $filename));
-        }
+        SecureUpload::deleteFromPublic('products_image', $product->image1);
+        SecureUpload::deleteFromPublic('products_image', $product->image2);
 
         $product->delete();
 

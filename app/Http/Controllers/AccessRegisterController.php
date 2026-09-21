@@ -4,10 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\AccessRegister;
 use App\Services\UserSessionService;
+use Illuminate\Auth\Events\Lockout;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+use Inertia\Inertia;
 
 class AccessRegisterController extends Controller
 {
@@ -32,28 +36,7 @@ class AccessRegisterController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => [
-                'required',
-                'email',
-                'unique:access_registers,email',
-                'email:rfc,dns',
-                'not_regex:/@12\\.com$/i', // Restrict emails ending with @12.com
-            ],
-            'password' => 'required|confirmed|min:8',
-        ], [
-            'email.not_regex' => 'Registration using @12.com emails is not allowed.',
-        ]);
-
-        AccessRegister::create([
-            'username' => $validated['name'],
-            'email' => $validated['email'],
-            'password' => bcrypt($validated['password']),
-        ]);
-
-        // Instead of redirecting back, return a success response for Inertia
-    return back()->with('success', 'Registration successful!');
+        abort(403, 'Public registration is disabled.');
     }
 
     /**
@@ -95,19 +78,51 @@ class AccessRegisterController extends Controller
             'password' => 'required',
         ]);
 
+        $this->ensureLoginIsNotRateLimited($request);
+
         $user = AccessRegister::where('email', $request->email)->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
+            RateLimiter::hit($this->loginThrottleKey($request));
+
             return back()->withErrors([
                 'general' => 'The provided credentials are incorrect.',
             ])->onlyInput('email');
         }
+
+        RateLimiter::clear($this->loginThrottleKey($request));
 
         Auth::login($user);
         $request->session()->regenerate();
         UserSessionService::recordLogin($user, $request);
 
         return redirect()->route('dashboard');
+    }
+
+    /**
+     * Block further login attempts after too many failures (5 per email+IP).
+     */
+    protected function ensureLoginIsNotRateLimited(Request $request): void
+    {
+        if (! RateLimiter::tooManyAttempts($this->loginThrottleKey($request), 5)) {
+            return;
+        }
+
+        event(new Lockout($request));
+
+        $seconds = RateLimiter::availableIn($this->loginThrottleKey($request));
+
+        throw ValidationException::withMessages([
+            'general' => trans('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
+        ]);
+    }
+
+    protected function loginThrottleKey(Request $request): string
+    {
+        return Str::transliterate(Str::lower($request->string('email')).'|'.$request->ip());
     }
 
     public function logout(Request $request)

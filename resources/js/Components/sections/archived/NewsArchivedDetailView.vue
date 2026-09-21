@@ -206,7 +206,15 @@ const formattedContent = computed(() => {
         .split(':')
         .map((segment) => segment.trim())
         .filter(Boolean)
-        .map((segment) => `<p class="mb-4">${segment}</p>`)
+        .map((segment) => {
+            const escaped = segment
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+            return `<p class="mb-4">${escaped}</p>`;
+        })
         .join('');
 });
 

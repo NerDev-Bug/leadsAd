@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\ArchiveNews;
 use App\Models\News;
+use App\Support\HtmlSanitizer;
+use App\Support\SecureUpload;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -168,42 +170,30 @@ class ArchiveNewsController extends Controller
             'featured_image_2' => 'nullable|file|image|max:10240',
         ]);
 
-        $destDir = public_path('archive_news');
-        if (! is_dir($destDir)) {
-            @mkdir($destDir, 0775, true);
-        }
+        $validated['content'] = HtmlSanitizer::clean($validated['content']);
 
         if ($request->hasFile('featured_image')) {
-            if ($archiveNews->featured_image) {
-                $oldPath = public_path('archive_news/' . basename($archiveNews->featured_image));
-                if (is_file($oldPath)) {
-                    @unlink($oldPath);
-                }
-            }
-
-            $file = $request->file('featured_image');
-            $filename = 'arch_' . uniqid() . '_' . $file->getClientOriginalName();
-            $file->move($destDir, $filename);
+            SecureUpload::deleteFromPublic('archive_news', $archiveNews->featured_image);
+            $filename = SecureUpload::storeImage(
+                $request->file('featured_image'),
+                'archive_news',
+                'arch_'
+            );
             $validated['featured_image'] = 'archive_news/' . $filename;
         }
 
         if ($request->hasFile('featured_image_2')) {
             if ($archiveNews->featured_image_2) {
                 foreach (explode(',', $archiveNews->featured_image_2) as $img) {
-                    $img = trim($img);
-                    if ($img === '') {
-                        continue;
-                    }
-                    $oldPath = public_path('archive_news/' . basename($img));
-                    if (is_file($oldPath)) {
-                        @unlink($oldPath);
-                    }
+                    SecureUpload::deleteFromPublic('archive_news', trim($img));
                 }
             }
 
-            $file = $request->file('featured_image_2');
-            $filename = 'arch_' . uniqid() . '_' . $file->getClientOriginalName();
-            $file->move($destDir, $filename);
+            $filename = SecureUpload::storeImage(
+                $request->file('featured_image_2'),
+                'archive_news',
+                'arch_'
+            );
             $validated['featured_image_2'] = 'archive_news/' . $filename;
         }
 

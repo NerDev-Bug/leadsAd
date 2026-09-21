@@ -79,6 +79,9 @@
                         <div class="min-w-0 flex-1">
                             <p class="truncate text-sm font-medium text-white">{{ userName }}</p>
                             <p class="truncate text-xs text-slate-400">{{ userEmail }}</p>
+                            <p v-if="userRole" class="truncate text-[10px] font-semibold uppercase tracking-wide text-brand-400 mt-0.5">
+                                {{ userRole }}
+                            </p>
                         </div>
                     </div>
                     <button
@@ -142,7 +145,9 @@ const currentPath = computed(() => (page.url || '').split('?')[0] || '/');
 const user = computed(() => page.props.auth?.user);
 const userName = computed(() => user.value?.username || 'Admin');
 const userEmail = computed(() => user.value?.email || '');
+const userRole = computed(() => user.value?.role || '');
 const userInitial = computed(() => (userName.value.charAt(0) || 'A').toUpperCase());
+const allowedNav = computed(() => page.props.auth?.permissions?.nav || []);
 
 const iconProps = { fill: 'none', stroke: 'currentColor', 'stroke-width': '1.75', viewBox: '0 0 24 24' };
 
@@ -168,14 +173,18 @@ const SettingsIcon = () => h('svg', iconProps, [
     h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', d: 'M12 3v1.5M12 19.5V21M4.219 4.219l1.061 1.061M18.72 18.72l1.061 1.061M3 12h1.5M19.5 12H21M4.219 19.781l1.061-1.061M18.72 5.28l1.061-1.061' }),
 ]);
 
-const navItems = [
-    { href: '/dashboard', label: 'Dashboard', icon: DashboardIcon },
-    { href: '/products', label: 'Products', icon: ProductsIcon },
-    { href: '/news', label: 'News', icon: NewsIcon },
-    { href: '/careers', label: 'Careers', icon: CareersIcon },
-    { href: '/directories', label: 'Directories', icon: DirectoriesIcon },
-    { href: '/settings', label: 'Settings', icon: SettingsIcon },
+const allNavItems = [
+    { key: 'dashboard', href: '/dashboard', label: 'Dashboard', icon: DashboardIcon },
+    { key: 'products', href: '/products', label: 'Products', icon: ProductsIcon },
+    { key: 'news', href: '/news', label: 'News', icon: NewsIcon },
+    { key: 'careers', href: '/careers', label: 'Careers', icon: CareersIcon },
+    { key: 'directories', href: '/directories', label: 'Directories', icon: DirectoriesIcon },
+    { key: 'settings', href: '/settings', label: 'Settings', icon: SettingsIcon },
 ];
+
+const navItems = computed(() =>
+    allNavItems.filter((item) => allowedNav.value.includes(item.key)),
+);
 
 function isActive(path) {
     return currentPath.value === path || currentPath.value.startsWith(path + '/');
