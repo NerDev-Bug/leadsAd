@@ -20,7 +20,7 @@
                         placeholder="Write the article content..."
                         min-height="200px"
                     />
-                    <p class="admin-form-hint">Use the toolbar to format text and create bullet or numbered lists.</p>
+                    <p class="admin-form-hint">Use the toolbar to format text, add links, or create bullet/numbered lists.</p>
                 </div>
                 <div class="admin-form-group">
                     <label class="admin-form-label">Published Date<span class="admin-form-required">*</span></label>

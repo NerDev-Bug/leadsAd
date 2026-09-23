@@ -132,7 +132,11 @@ class HtmlSanitizer
                     continue;
                 }
 
-                if (! preg_match('#^(https?:)?//#i', $href) && ! str_starts_with($href, '/') && ! str_starts_with($href, '#')) {
+                if (! preg_match('#^(https?:)?//#i', $href)
+                    && ! str_starts_with($href, '/')
+                    && ! str_starts_with($href, '#')
+                    && ! preg_match('/^mailto:/i', $href)
+                    && ! preg_match('/^tel:/i', $href)) {
                     $element->removeAttribute('href');
                 }
             }

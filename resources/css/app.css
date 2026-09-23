@@ -254,20 +254,34 @@
     }
 
     .admin-rich-text-editor .ql-container.ql-snow {
-        @apply admin-scrollbar rounded-b-xl border border-t-0 border-slate-200 bg-white text-sm text-slate-800;
+        @apply rounded-b-xl border border-t-0 border-slate-200 bg-white text-sm text-slate-800;
         min-height: var(--editor-min-height, 140px);
-        max-height: var(--editor-max-height, 280px);
-        overflow-y: auto;
+        overflow: visible;
     }
 
     .admin-rich-text-editor .ql-editor {
+        @apply admin-scrollbar;
         min-height: var(--editor-min-height, 140px);
+        max-height: var(--editor-max-height, 280px);
         height: auto;
-        overflow-y: visible;
+        overflow-y: auto;
     }
 
     .admin-rich-text-editor .ql-editor.ql-blank::before {
         @apply text-slate-400 not-italic;
+    }
+
+    .admin-rich-text-editor .ql-editor a {
+        @apply text-brand-600;
+        text-decoration: none !important;
+    }
+
+    .admin-rich-text-editor .ql-editor u a {
+        text-decoration: underline !important;
+    }
+
+    .admin-rich-text-editor .ql-tooltip {
+        display: none !important;
     }
 
     .admin-rich-text-editor .ql-snow .ql-stroke {
